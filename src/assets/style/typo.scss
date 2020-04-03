@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap');
+
+html, body, h1, h2, h3, h4, p, a {
+  font-family: 'Quicksand', sans-serif;
+}
+
+html, body, p {
+  font-weight: 400;
+  font-size: 16px;
+}
+
+h1, h2, h3, h4, .h1, .h2, .h3, .h4, b, .b {
+  font-weight: 700;
+}
+
+h1, .h1, .text-xl {
+  font-size: 1.75rem;
+}
+h2, .h2, .text-lg {
+  font-size: 1.5rem;
+}
+h3, .h3, .text-md {
+  font-size: 1.25rem;
+}
+h4, .h4 {
+  font-size: 1rem;
+}
+
+a, .a {
+  text-decoration: none;
+}
+a:hover, .a:hover {
+  text-decoration: none;
+}
+
+.align-left {
+  text-align: left;
+}
+.align-center {
+  text-align: center;
+}
+.align-right {
+  text-align: right;
+}

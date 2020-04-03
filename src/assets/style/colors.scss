@@ -1,0 +1,19 @@
+@import './variables.scss';
+
+.theme-blue {
+  background-color: $blue-light;
+  color: $off-white;
+}
+.theme-blue a, .theme-blue a:visited, .theme-blue a:active, .theme-blue a:focus {
+  color: $off-white;
+}
+.theme-blue a:hover {
+  color: $white;
+}
+
+.color-off-white {
+  color: $off-white;
+}
+.op-50 {
+  opacity: 0.5;
+}
