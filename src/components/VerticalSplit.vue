@@ -26,7 +26,7 @@ export default {
     },
     bottomPartStyle () {
       return {
-        height: `calc(${100 * (1-this.fraction)}% - ${0.5 * this.dividerSizeRem}rem)`
+        height: `calc(${100 * (1 - this.fraction)}% - ${0.5 * this.dividerSizeRem}rem)`
       }
     },
     dividerStyle () {

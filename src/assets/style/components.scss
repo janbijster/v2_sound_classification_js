@@ -5,8 +5,12 @@
   margin: 0 0.5rem 0 0;
   padding: 0.5rem 1rem;
   background-color: $blue-light;
-  border-radius: 2px;  
+  border-radius: 2px;
   color: $white;
+  cursor: pointer;
+}
+.btn:hover {
+  opacity: 0.9;
 }
 .btn-sm {
   padding: 0.2rem 0.4rem;

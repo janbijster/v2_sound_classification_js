@@ -7,7 +7,7 @@
           <browser />
         </template>
         <template v-slot:bottom>
-          <p>Here comes the sound inspector</p>
+          <sound-inspector />
         </template>
       </vertical-split>
     </div>
@@ -17,12 +17,14 @@
 <script>
 import VerticalSplit from '@/components/VerticalSplit'
 import Browser from '@/components/Browser'
+import SoundInspector from '@/components/SoundInspector'
 
 export default {
   name: 'Sounds',
   components: {
     VerticalSplit,
-    Browser
+    Browser,
+    SoundInspector
   }
 }
 </script>

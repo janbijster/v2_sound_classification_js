@@ -1,9 +1,27 @@
 @import './variables.scss';
 
-h1, h2, h3, h4, .h1, .h2, .h3, .h4, b, .b {
+h1,
+h2,
+h3,
+h4,
+.h1,
+.h2,
+.h3,
+.h4,
+b,
+.b {
   color: $blue;
 }
-.theme-blue h1, .theme-blue h2, .theme-blue h3, .theme-blue h4, .theme-blue .h1, .theme-blue .h2, .theme-blue .h3, .theme-blue .h4, .theme-blue b, .theme-blue .b {
+.theme-blue h1,
+.theme-blue h2,
+.theme-blue h3,
+.theme-blue h4,
+.theme-blue .h1,
+.theme-blue .h2,
+.theme-blue .h3,
+.theme-blue .h4,
+.theme-blue b,
+.theme-blue .b {
   color: $off-white;
 }
 
@@ -11,7 +29,10 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, b, .b {
   background-color: $blue;
   color: $white;
 }
-.theme-blue a, .theme-blue a:visited, .theme-blue a:active, .theme-blue a:focus {
+.theme-blue a,
+.theme-blue a:visited,
+.theme-blue a:active,
+.theme-blue a:focus {
   color: $white;
 }
 .theme-blue a:hover {
@@ -23,4 +44,7 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, b, .b {
 }
 .op-50 {
   opacity: 0.5;
+}
+.color-blue {
+  color: $blue-light;
 }

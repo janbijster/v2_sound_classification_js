@@ -17,6 +17,8 @@
           @click.native="collapsed = true"
           >{{ link.name }}</router-link
         >
+        <div class="side-menu-separator" />
+        <div class="menu-link" @click="clearSounds">Clear all sounds</div>
       </div>
     </div>
   </div>
@@ -45,12 +47,19 @@ export default {
     windowStyle() {
       return {
         left: this.collapsed ? `-${this.menuWidthPx}px` : '0',
-        right: this.collapsed ? '100vw' : `${this.windowWidthPx - this.menuWidthPx}px`
+        right: this.collapsed
+          ? '100vw'
+          : `${this.windowWidthPx - this.menuWidthPx}px`
       }
     },
     menuWidthPx() {
-      const menuWidth = Math.min(this.menuWidthVw * 1e-2 * this.windowWidthPx, this.maxMenuWidthPx)
-      return menuWidth < this.minMenuWidthPx ? Math.min(this.windowWidthPx, this.minMenuWidthPx) : menuWidth
+      const menuWidth = Math.min(
+        this.menuWidthVw * 1e-2 * this.windowWidthPx,
+        this.maxMenuWidthPx
+      )
+      return menuWidth < this.minMenuWidthPx
+        ? Math.min(this.windowWidthPx, this.minMenuWidthPx)
+        : menuWidth
     }
   },
   mounted() {
@@ -64,8 +73,12 @@ export default {
   },
   methods: {
     getWindowWidth() {
-        this.windowWidthPx = document.documentElement.clientWidth
-      }
+      this.windowWidthPx = document.documentElement.clientWidth
+    },
+    clearSounds() {
+      this.collapsed = true
+      this.$store.dispatch('sounds/clearAll')
+    }
   }
 }
 </script>
@@ -115,5 +128,8 @@ export default {
   margin-left: 28px;
   display: block;
   margin-bottom: 1rem;
+}
+.side-menu-separator {
+  height: 2rem;
 }
 </style>
