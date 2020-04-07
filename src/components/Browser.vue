@@ -2,19 +2,38 @@
   <div class="browser align-left">
     <div class="browser-content">
       <div class="browser-labels">
-        <div v-for="(label, index) in labels" :key="index" class="browser-label">
-          {{ label }}
+        <div class="browser-title b">labels</div>
+        <div class="scroll">
+          <div :class="['browser-list-item browser-label', selectedLabel == null ? 'b' : '']">
+            <span class="op-50" @click="selectedLabel = null">unlabeled ({{ soundsByLabel(null).length }})</span>
+          </div>
+          <div
+            v-for="(label, index) in labels" :key="index"
+            :class="['browser-list-item browser-label', selectedLabel == label ? 'b' : '']"
+          > 
+            <div class="browser-item-delete b" @click="deleteLabel(label)">x</div>
+            <span @click="selectedLabel = label">{{ label }} ({{ soundsByLabel(label).length }})</span>
+          </div>
+          <div class="btn btn-sm" @click="newLabel">new label</div>
         </div>
       </div>
-      <div class="browser-items">
-        <div v-for="(item, index) in items" :key="index" class="browser-item">
-          {{ item }}
+      <div class="browser-sounds">
+        <div class="browser-title b">sounds</div>
+        <div class="scroll">
+          <div
+            v-for="(sound, index) in sounds" :key="index"
+            :class="['browser-list-item browser-sound', selectedSound == sound ? 'b' : '']"
+            @click="selectSound(sound)"
+          >
+            <div class="browser-item-delete b" @click="deleteSound(sound)">x</div>
+            {{ sound }}
+          </div>
+          <div class="btn btn-sm" @click="uploadSound">Upload</div>
+          <div class="btn btn-sm" @click="recordSound">Record</div>
         </div>
       </div>
     </div>
     <div class="browser-buttons">
-      <div class="btn">Upload</div>
-      <div class="btn">Record</div>
     </div>
   </div>
 </template>
@@ -23,40 +42,50 @@
 export default {
   data () {
     return {
-      dummyLabels: ['car horn', 'street music', 'siren', 'engine idling', 'drilling', 'tire screech'],
-      dummyItems: [
-        '03-04-2020 13:23 3s',
-        '03-04-2020 21:36 23s',
-        '03-04-2020 22:10 5s',
-        '05-12-2020 14:36 14s',
-        '05-04-2020 15:00 2s'
-      ]
+      selectedLabel: null
     }
   },
   computed: {
     labels () {
-      return this.randomList(this.dummyLabels, 10)
+      return this.$store.getters['sounds/getLabels']
     },
-    items () {
-      return this.randomList(this.dummyItems, 50)
+    sounds () {
+      return this.soundsByLabel(this.selectedLabel)
+    },
+    selectedSound () {
+      return this.$store.getters['sounds/getSelectedSound']
     }
   },
   methods: {
-    randomElement (items) {
-      return items[Math.floor(Math.random() * items.length)]
+    newLabel () {
+      this.$store.dispatch('sounds/newLabel').then(label => this.selectedLabel = label)
     },
-    randomList (items, size) {
-      let output = []
-      for (let i = 0; i < size; i++) {
-        output.push(this.randomElement(items))
-      }
-      return output
+    deleteLabel (label) {
+      this.$store.commit('sounds/deleteLabel', label)
+      this.selectedLabel = null
+    },
+    uploadSound () {
+      this.$store.commit('sounds/addSound', { label: this.selectedLabel, file: 'todo' })
+    },
+    recordSound () {
+      console.log('record')
+    },
+    deleteSound (sound) {
+      this.$store.commit('sounds/deleteSound', sound)
+    },
+    soundsByLabel (label) {
+      return this.$store.getters['sounds/getSoundsByLabel'](label)
+    },
+    selectSound (sound) {
+      this.$store.commit('sounds/selectSound', sound)
     }
   }
 }
 </script>
 
-<style>
+<style lang="scss">
+@import '@/assets/style/variables.scss';
+
 .browser {
   height: 100%;
 }
@@ -68,17 +97,30 @@ export default {
   margin-top: 0.5rem;
 }
 
-.browser-labels, .browser-items {
+.browser-labels, .browser-sounds {
   height: 100%;
-  overflow-y: scroll;
-  overflow-x: hidden;
+  overflow: hidden;
   position: absolute;
 }
 .browser-labels {
   width: 33%;
 }
-.browser-items {
+.browser-sounds {
   width: calc(66% - 1rem);
   left: calc(33% + 1rem);
+}
+.browser-labels>.scroll, .browser-sounds>.scroll {
+  height: calc(100% - 1rem);
+  width: 100%;
+  overflow-x: hidden;
+  position: absolute;
+  overflow-y: scroll;
+}
+.browser-item-delete {
+  float: right;
+  margin-right: 0.3rem;
+}
+.browser-list-item {
+
 }
 </style>

@@ -1,14 +1,21 @@
 @import './variables.scss';
 
-.theme-blue {
-  background-color: $blue-light;
+h1, h2, h3, h4, .h1, .h2, .h3, .h4, b, .b {
+  color: $blue;
+}
+.theme-blue h1, .theme-blue h2, .theme-blue h3, .theme-blue h4, .theme-blue .h1, .theme-blue .h2, .theme-blue .h3, .theme-blue .h4, .theme-blue b, .theme-blue .b {
   color: $off-white;
+}
+
+.theme-blue {
+  background-color: $blue;
+  color: $white;
 }
 .theme-blue a, .theme-blue a:visited, .theme-blue a:active, .theme-blue a:focus {
-  color: $off-white;
+  color: $white;
 }
 .theme-blue a:hover {
-  color: $white;
+  color: $off-white;
 }
 
 .color-off-white {

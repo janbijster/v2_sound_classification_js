@@ -1,11 +1,11 @@
 <template>
   <div class="side-menu color-off-white">
-    <div class="side-menu-button op-50" @click="collapsed = !collapsed">
+    <div class="side-menu-button" @click="collapsed = !collapsed">
       <menu-icon v-if="collapsed" class="menu-icon" />
       <close-icon v-if="!collapsed" class="close-icon" />
     </div>
     <div class="side-menu-window theme-blue" :style="windowStyle">
-      <div class="side-menu-header">
+      <div class="side-menu-header view-title h4">
         Sound classification js
       </div>
       <div class="side-menu-links">
@@ -33,18 +33,39 @@ export default {
   },
   data() {
     return {
-      menuWidth: 70,
+      menuWidthVw: 70,
+      maxMenuWidthPx: 500,
+      minMenuWidthPx: 350,
       collapsed: true,
-      allLinks: this.$router.options.routes
+      allLinks: this.$router.options.routes,
+      windowWidthPx: 0
     }
   },
   computed: {
     windowStyle() {
       return {
-        left: this.collapsed ? `-${this.menuWidth}vw` : '0',
-        right: this.collapsed ? '100vw' : `${100 - this.menuWidth}vw`
+        left: this.collapsed ? `-${this.menuWidthPx}px` : '0',
+        right: this.collapsed ? '100vw' : `${this.windowWidthPx - this.menuWidthPx}px`
       }
+    },
+    menuWidthPx() {
+      const menuWidth = Math.min(this.menuWidthVw * 1e-2 * this.windowWidthPx, this.maxMenuWidthPx)
+      return menuWidth < this.minMenuWidthPx ? Math.min(this.windowWidthPx, this.minMenuWidthPx) : menuWidth
     }
+  },
+  mounted() {
+    this.$nextTick(function() {
+      window.addEventListener('resize', this.getWindowWidth)
+      this.getWindowWidth()
+    })
+  },
+  destroyed() {
+    window.removeEventListener('resize', this.getWindowWidth)
+  },
+  methods: {
+    getWindowWidth() {
+        this.windowWidthPx = document.documentElement.clientWidth
+      }
   }
 }
 </script>
@@ -65,7 +86,7 @@ export default {
 .side-menu-button {
   position: absolute;
   z-index: 101;
-  left: 1rem;
+  left: calc(1rem - 2px);
   top: 1rem;
   transition: opacity 0.2s ease;
   pointer-events: auto;
@@ -80,11 +101,10 @@ export default {
   top: 0;
   bottom: 0;
   padding: 1rem;
-  transition: left 0.3s ease, right 0.3s ease;
+  transition: left 0.15s ease, right 0.15s ease;
   pointer-events: auto;
 }
 .side-menu-header {
-  margin-left: 2.5rem;
   margin-bottom: 1rem;
 }
 
@@ -92,7 +112,7 @@ export default {
   margin-top: 3rem;
 }
 .menu-link {
-  margin-left: 2.5rem;
+  margin-left: 28px;
   display: block;
   margin-bottom: 1rem;
 }

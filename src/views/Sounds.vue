@@ -1,6 +1,6 @@
 <template>
   <div class="sounds">
-    <div class="view-title">Sounds</div>
+    <div class="view-title h4">Sounds</div>
     <div class="vertical-split-holder">
       <vertical-split>
         <template v-slot:top>

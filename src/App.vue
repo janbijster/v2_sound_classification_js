@@ -12,6 +12,9 @@ export default {
   name: 'Home',
   components: {
     SideMenu
+  },
+  mounted () {
+    this.$store.dispatch('sounds/loadAll')
   }
 }
 </script>
@@ -24,6 +27,7 @@ body,
 #app {
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 * {
   box-sizing: border-box;

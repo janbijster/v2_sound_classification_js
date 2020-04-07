@@ -48,8 +48,6 @@ export default {
 }
 
 .part {
-  border: 1px solid $blue-light;
   border-radius: 3px;
-  padding: 0.5rem;
 }
 </style>
