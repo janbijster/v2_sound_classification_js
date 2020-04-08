@@ -1,7 +1,7 @@
 <template>
   <div class="record-audio-button">
     <div class="btn btn-sm" @click="displayRecorder = true">record</div>
-    <audio-recorder v-if="displayRecorder" />
+    <audio-recorder v-if="displayRecorder" @close="displayRecorder = false" />
   </div>
 </template>
 

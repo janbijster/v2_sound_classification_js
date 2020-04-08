@@ -10,4 +10,7 @@ module.exports = {
       config.output.filename('[name].[hash].js').end()
     }
   }
+  // devServer: {
+  //   https: true
+  // }
 }
