@@ -23,20 +23,25 @@ export default {
   methods: {
     record() {
       try {
+        // check if MediaDevices is present
+        alert(navigator.mediaDevices) // safari macos // chrome macos
+        alert(navigator.getUserMedia) // chrome macos
+        alert(navigator.webkitGetUserMedia) // chrome macos
+        alert(navigator.mozGetUserMedia)
         // Request permissions to record audio
-        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-          this.recorder = new MediaRecorder(stream)
+        // navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+        //   this.recorder = new MediaRecorder(stream)
 
-          this.recorder.addEventListener('dataavailable', e => {
-            console.log(e)
-            alert(e.data.type)
-            // let audioSrc = URL.createObjectURL(e.data)
-            // console.log(audioSrc)
-          })
+        //   this.recorder.addEventListener('dataavailable', e => {
+        //     console.log(e)
+        //     alert(e.data.type)
+        //     // let audioSrc = URL.createObjectURL(e.data)
+        //     // console.log(audioSrc)
+        //   })
 
-          // Start recording
-          this.recorder.start()
-        })
+        //   // Start recording
+        //   this.recorder.start()
+        // })
       } catch (error) {
         alert(error)
       }
