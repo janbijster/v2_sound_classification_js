@@ -61,7 +61,7 @@
       </div>
       <div class="browser-bottom-btns">
         <upload-sound-button btn-class="btn btn-sm" @sound="uploadSound" />
-        <div class="btn btn-sm" @click="recordSound">Record</div>
+        <record-audio-button btn-class="btn btn-sm" @sound="uploadSound" />
       </div>
     </div>
   </div>
@@ -69,11 +69,13 @@
 
 <script>
 import UploadSoundButton from '@/components/UploadSoundButton'
+import RecordAudioButton from '@/components/RecordAudioButton'
 import Close from 'vue-material-design-icons/Close.vue'
 
 export default {
   components: {
     UploadSoundButton,
+    RecordAudioButton,
     Close
   },
   data() {

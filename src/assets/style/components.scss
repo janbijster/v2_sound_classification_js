@@ -39,3 +39,14 @@ input.wide,
 select.wide {
   width: 100%;
 }
+
+.popup {
+  position: fixed;
+  top: 3rem;
+  left: 1rem;
+  bottom: 1rem;
+  right: 1rem;
+  border-radius: 3px;
+  background-color: $blue-almost-white;
+  z-index: 10;
+}

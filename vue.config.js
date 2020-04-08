@@ -1,11 +1,13 @@
-const environment =
-  process.env.NODE_ENV === 'production' ? 'production' : 'development'
-
-const publicPath = {
+publicPath = {
   production: '/v2_sound_classification_js/',
   development: '/'
 }
 
 module.exports = {
-  publicPath: publicPath[environment]
+  publicPath: publicPath[process.env.NODE_ENV],
+  chainWebpack: config => {
+    if (process.env.NODE_ENV === 'development') {
+      config.output.filename('[name].[hash].js').end()
+    }
+  }
 }
