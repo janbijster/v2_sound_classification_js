@@ -2,7 +2,7 @@
   <div class="upload-sound-component">
     <div class="upload-btn-wrapper">
       <div :class="btnClass" @click="clickFileUpload">
-        Upload
+        upload
       </div>
       <input
         ref="input"
