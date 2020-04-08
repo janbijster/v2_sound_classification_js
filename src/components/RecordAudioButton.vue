@@ -1,7 +1,11 @@
 <template>
   <div class="record-audio-button">
     <div class="btn btn-sm" @click="displayRecorder = true">record</div>
-    <audio-recorder v-if="displayRecorder" @close="displayRecorder = false" />
+    <audio-recorder
+      v-if="displayRecorder"
+      @close="displayRecorder = false"
+      @sound="getSound"
+    />
   </div>
 </template>
 
@@ -15,6 +19,12 @@ export default {
   data() {
     return {
       displayRecorder: false
+    }
+  },
+  methods: {
+    getSound(sound) {
+      console.log('got sound, passing through...')
+      this.$emit('sound', sound)
     }
   }
 }

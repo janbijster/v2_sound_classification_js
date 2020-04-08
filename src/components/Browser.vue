@@ -22,13 +22,13 @@
             ]"
             @click="selectedLabel = label"
           >
+            <span>{{ label }} ({{ soundsByLabel(label).length }})</span>
             <div
               class="browser-item-delete"
               @click="deleteLabel(label, $event)"
             >
               <close :size="12" />
             </div>
-            <span>{{ label }} ({{ soundsByLabel(label).length }})</span>
           </div>
         </div>
       </div>
@@ -49,13 +49,13 @@
             ]"
             @click="selectSound(sound)"
           >
+            <span class="op-50">{{ sound.datetime }}</span> {{ sound.name }}
             <div
               class="browser-item-delete"
               @click="deleteSound(sound, $event)"
             >
               <close :size="12" />
             </div>
-            {{ sound.datetime }}
           </div>
         </div>
       </div>
@@ -166,13 +166,25 @@ export default {
   overflow-y: scroll;
 }
 .browser-item-delete {
-  float: right;
-  margin-right: 0.3rem;
+  position: absolute;
+  background-color: $blue-light;
+  color: #fff;
+  top: calc(0.5rem - 3px);
+  right: 0px;
+  border-radius: 3px;
+  height: 12px;
+  box-shadow: 0px 0px 2px 3px #ffffff;
+}
+.browser-item-delete > span {
+  line-height: 15px;
+  vertical-align: top;
 }
 .browser-list-item {
   cursor: pointer;
   height: 1.3rem;
   overflow: hidden;
+  white-space: nowrap;
+  position: relative;
 }
 .browser-list-item.selected {
   background: $blue-almost-white;

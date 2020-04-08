@@ -74,6 +74,7 @@ export default {
   },
   watch: {
     selectedSound(sound) {
+      this.selectedSoundData = null
       if (sound != null) {
         this.$store
           .dispatch('sounds/loadSoundFile', sound)

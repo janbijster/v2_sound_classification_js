@@ -14,8 +14,13 @@ export const generateUUID = () => {
 }
 
 export const convertTimeHHMMSS = val => {
-  let hhmmss = new Date(val * 1000).toISOString().substr(11, 8)
-  return hhmmss.indexOf('00:') === 0 ? hhmmss.substr(3) : hhmmss
+  try {
+    let hhmmss = new Date(val * 1000).toISOString().substr(11, 8)
+    return hhmmss.indexOf('00:') === 0 ? hhmmss.substr(3) : hhmmss
+  } catch (err) {
+    console.warn('Error converting time value:', val)
+    console.warn(err)
+  }
 }
 
 export default {
@@ -40,6 +45,7 @@ export default {
   },
   computed: {
     duration: function() {
+      console.log('computing duration', this.totalDuration)
       return this.audio ? convertTimeHHMMSS(this.totalDuration) : ''
     },
     playerId: function() {
@@ -75,7 +81,7 @@ export default {
       }
       const pos = tag.getBoundingClientRect()
       const seekPos = (e.clientX - pos.left) / pos.width
-      this.audio.currentTime = parseInt(this.audio.duration * seekPos)
+      this.audio.currentTime = this.audio.duration * seekPos
     },
     updateVolume: function() {
       this.hideVolumeSlider = false
@@ -119,19 +125,22 @@ export default {
       this.audio.muted = this.isMuted
       this.volumeValue = this.isMuted ? 0 : 75
     },
+    _computeDuration: function() {
+      if (this.audio.readyState >= 2 && this.audio.duration != Infinity) {
+        this.totalDuration = this.audio.duration
+      }
+    },
     _handleLoaded: function() {
       if (this.audio.readyState >= 2) {
         if (this.autoPlay) this.play()
-
         this.loaded = true
-        this.totalDuration = parseInt(this.audio.duration)
       } else {
         throw new Error('Failed to load sound file')
       }
     },
     _handlePlayingUI: function(e) {
-      let currTime = parseInt(this.audio.currentTime)
-      let percentage = parseInt((currTime / this.totalDuration) * 100)
+      let currTime = this.audio.currentTime
+      let percentage = (currTime / this.totalDuration) * 100
       this.progressStyle = `width:${percentage}%;`
       this.currentTime = convertTimeHHMMSS(currTime)
     },
@@ -149,6 +158,8 @@ export default {
     init: function() {
       this.audio.addEventListener('timeupdate', this._handlePlayingUI)
       this.audio.addEventListener('loadeddata', this._handleLoaded)
+      this.audio.addEventListener('loadeddata', this._computeDuration)
+      this.audio.addEventListener('durationchange', this._computeDuration)
       this.audio.addEventListener('pause', this._handlePlayPause)
       this.audio.addEventListener('play', this._handlePlayPause)
     },
@@ -157,6 +168,7 @@ export default {
     }
   },
   mounted: function() {
+    console.log('mounted')
     this.uuid = generateUUID()
     this.audio = this.getAudio()
     this.innerLoop = this.loop
@@ -165,6 +177,8 @@ export default {
   beforeDestroy: function() {
     this.audio.removeEventListener('timeupdate', this._handlePlayingUI)
     this.audio.removeEventListener('loadeddata', this._handleLoaded)
+    this.audio.removeEventListener('loadeddata', this._computeDuration)
+    this.audio.removeEventListener('durationchange', this._computeDuration)
     this.audio.removeEventListener('pause', this._handlePlayPause)
     this.audio.removeEventListener('play', this._handlePlayPause)
   }
