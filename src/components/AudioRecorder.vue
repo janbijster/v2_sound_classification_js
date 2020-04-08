@@ -22,20 +22,24 @@ export default {
   },
   methods: {
     record() {
-      // Request permissions to record audio
-      navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-        this.recorder = new MediaRecorder(stream)
+      try {
+        // Request permissions to record audio
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+          this.recorder = new MediaRecorder(stream)
 
-        this.recorder.addEventListener('dataavailable', e => {
-          console.log(e)
-          alert(e.data.type)
-          // let audioSrc = URL.createObjectURL(e.data)
-          // console.log(audioSrc)
+          this.recorder.addEventListener('dataavailable', e => {
+            console.log(e)
+            alert(e.data.type)
+            // let audioSrc = URL.createObjectURL(e.data)
+            // console.log(audioSrc)
+          })
+
+          // Start recording
+          this.recorder.start()
         })
-
-        // Start recording
-        this.recorder.start()
-      })
+      } catch (error) {
+        alert(error)
+      }
     },
     stop() {
       // Stop recording
