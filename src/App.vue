@@ -1,19 +1,22 @@
 <template>
   <div id="app">
     <side-menu />
+    <status-message />
     <router-view class="router-content" />
   </div>
 </template>
 
 <script>
 import SideMenu from '@/components/SideMenu.vue'
+import StatusMessage from '@/components/StatusMessage'
 
 export default {
   name: 'Home',
   components: {
-    SideMenu
+    SideMenu,
+    StatusMessage
   },
-  mounted () {
+  mounted() {
     this.$store.dispatch('sounds/loadAll')
   }
 }

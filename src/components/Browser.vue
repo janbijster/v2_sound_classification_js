@@ -149,11 +149,11 @@ export default {
   position: absolute;
 }
 .browser-labels {
-  width: 33%;
+  width: calc(33% - 0.5rem);
 }
 .browser-sounds {
-  width: calc(66% - 1rem);
-  left: calc(33% + 1rem);
+  width: calc(67% - 0.5rem);
+  left: calc(33% + 0.5rem);
 }
 .browser-labels > .scroll,
 .browser-sounds > .scroll {
@@ -170,7 +170,7 @@ export default {
 .browser-list-item {
   cursor: pointer;
   height: 1.3rem;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 .browser-list-item.selected {
   background: $blue-almost-white;

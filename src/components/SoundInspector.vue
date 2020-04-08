@@ -2,18 +2,51 @@
   <div class="sound-inspector">
     <div v-if="selectedSound != null" class="sound-inspector-content">
       <div class="sound-inspector-part left">
-        <div class="sound-label">{{ selectedSound.label || 'unlabeled' }}</div>
-        <div class="sound-name">{{ selectedSound.name }}</div>
-        <div class="sound-datetime">{{ selectedSound.datetime }}</div>
-        <div class="sound-type">{{ selectedSound.type }}</div>
+        <div class="sound-property sound-label">
+          <div class="sound-property-label">label</div>
+          <select
+            v-model="selectedSound.label"
+            class="wide"
+            @change="saveSounds"
+          >
+            <option :value="null">unlabeled</option>
+            <option
+              v-for="(label, index) in labels"
+              :key="index"
+              :value="label"
+              >{{ label }}</option
+            >
+          </select>
+        </div>
+        <div class="sound-property sound-name">
+          <div class="sound-property-label">name</div>
+          <input
+            v-model="selectedSound.name"
+            class="wide"
+            @change="saveSounds"
+          />
+        </div>
       </div>
       <div class="sound-inspector-part right">
         <template v-if="selectedSoundData">
+          <div class="sound-property-label">
+            play
+          </div>
           <vue-audio class="sound-player" :file="selectedSoundData" />
         </template>
         <template v-else>
-          <div class="sound-player-msg">loading sound...</div>
+          <div class="sound-property-label sound-player-msg">
+            loading sound...
+          </div>
         </template>
+        <div class="sound-property sound-datetime">
+          <span class="sound-property-label">added </span>
+          <span>{{ selectedSound.datetime }}</span>
+        </div>
+        <div class="sound-property sound-type">
+          <span class="sound-property-label">type: </span>
+          <span>{{ selectedSound.type }}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -34,6 +67,9 @@ export default {
   computed: {
     selectedSound() {
       return this.$store.getters['sounds/getSelectedSound']
+    },
+    labels() {
+      return this.$store.getters['sounds/getLabels']
     }
   },
   watch: {
@@ -48,11 +84,19 @@ export default {
           })
       }
     }
+  },
+  methods: {
+    saveSounds() {
+      this.$store.dispatch('sounds/saveSounds')
+    }
   }
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+$splitLeft: 33%;
+$splitRight: 67%;
+
 .sound-inspector,
 .sound-inspector-content {
   text-align: left;
@@ -63,7 +107,6 @@ export default {
 }
 .sound-inspector-part {
   position: absolute;
-  width: 50%;
   left: 0;
   top: 0;
   height: 100%;
@@ -71,11 +114,17 @@ export default {
   overflow-y: scroll;
 }
 .sound-inspector-part.left {
-  width: calc(50% - 0.5rem);
+  width: calc(#{$splitLeft} - 0.5rem);
   left: 0;
 }
 .sound-inspector-part.right {
-  width: calc(50% - 0.5rem);
-  left: calc(50% + 0.5rem);
+  width: calc(#{$splitRight} - 0.5rem);
+  left: calc(#{$splitLeft} + 0.5rem);
+}
+.sound-property {
+  margin-bottom: 0.25rem;
+}
+.sound-property-label {
+  opacity: 0.5;
 }
 </style>

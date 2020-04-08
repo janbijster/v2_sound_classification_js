@@ -19,3 +19,23 @@
   margin-left: 28px;
   text-align: left;
 }
+
+input,
+select {
+  padding: 0.25rem;
+  border-radius: 3px;
+  border: 1px solid $blue-extra-light;
+  font-size: 1rem;
+}
+input.b {
+  font-weight: 700;
+}
+input:focus {
+  outline: none;
+  border-color: $blue-light;
+}
+
+input.wide,
+select.wide {
+  width: 100%;
+}

@@ -1,10 +1,6 @@
 <template>
   <div :class="`${classes}-wrapper`">
     <div :class="`${classes}__player`">
-      <a title="Stop" @click="stop()"><stop class="color-blue"/></a>
-      <a title="Play" @click="pause()">
-        <play :class="['color-blue', paused ? '' : 'op-50']" />
-      </a>
       <div
         :class="`${classes}__playback-time-wrapper`"
         title="Time played : Total time"
@@ -14,13 +10,19 @@
           :style="progressStyle"
           :class="`${classes}__playback-time-indicator`"
         ></div>
-        <div :class="`${classes}__time-display`">
-          <span :class="`${classes}__playback-time-current`">{{
-            currentTime
-          }}</span>
-          <span :class="`${classes}__playback-time-separator`"></span>
-          <span :class="`${classes}__playback-time-total`">{{ duration }}</span>
-        </div>
+      </div>
+      <div :class="`${classes}__player-controls`">
+        <a title="Stop" @click="stop()"><stop class="color-blue"/></a>
+        <a title="Play" @click="pause()">
+          <play :class="['color-blue', paused ? '' : 'op-50']" />
+        </a>
+      </div>
+      <div :class="`${classes}__time-display`">
+        <span :class="`${classes}__playback-time-current`">{{
+          currentTime
+        }}</span>
+        <span :class="`${classes}__playback-time-separator`"></span>
+        <span :class="`${classes}__playback-time-total`">{{ duration }}</span>
       </div>
     </div>
     <audio
@@ -42,54 +44,40 @@
 $prefixCls: 'vue-sound';
 .#{$prefixCls}-wrapper {
   .#{$prefixCls}__player {
-    height: 30px;
+    height: 40px;
     line-height: 30px;
+    margin-left: -6px;
 
     a {
       cursor: pointer;
       display: inline-block;
-      vertical-align: middle;
+      vertical-align: text-top;
     }
 
-    .#{$prefixCls}__extern-wrapper {
+    .#{$prefixCls}__time-display,
+    .#{$prefixCls}__player-controls {
       display: inline-block;
-      margin-left: 10px;
+    }
 
-      > a {
-        margin-right: 5px;
-        vertical-align: 0;
-      }
+    .#{$prefixCls}__time-display {
+      font-size: 12px;
+      margin-left: 6px;
+    }
 
-      .volume-toggle {
-        position: relative;
-
-        .volume-slider {
-          cursor: pointer;
-          position: absolute;
-          top: 0;
-          width: 80px;
-          left: 24px;
-        }
-      }
+    .#{$prefixCls}__playback-time-separator::after {
+      content: ' / ';
     }
 
     .#{$prefixCls}__playback-time-wrapper {
       background: transparent;
       position: relative;
-      width: 100px;
-      display: inline-block;
+      width: 126px;
+      display: block;
       background: $blue-almost-white;
       height: 3px;
       cursor: pointer;
-      margin-bottom: 9px;
+      margin: 0.5rem 6px 0;
       vertical-align: middle;
-
-      .#{$prefixCls}__playback-time-separator::after {
-        content: ' : ';
-      }
-
-      .#{$prefixCls}__playback-time-total {
-      }
 
       .#{$prefixCls}__playback-time-indicator {
         background: $blue-light;

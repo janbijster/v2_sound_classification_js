@@ -1,5 +1,6 @@
 <template>
   <div class="about">
-    <h1>This is an about page</h1>
+    <div class="view-title h4">About</div>
+    <p>Sound classification in the browser</p>
   </div>
 </template>

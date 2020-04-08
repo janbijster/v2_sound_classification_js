@@ -1,32 +1,34 @@
 import moment from 'moment'
 import { v4 as uuidv4 } from 'uuid'
 import localforage from 'localforage'
+import Vue from 'vue'
 
 // Functions for saving to and loading from disk
 localforage.setDriver('asyncStorage') // force indexedDB
-let diskActivity = null
+const diskActivity = []
 const saveToDisk = (key, value) => {
-  diskActivity = `saving ${key}...`
-  localforage.setItem(key, value).then(() => (diskActivity = null))
+  Vue.set(diskActivity, 0, `saving ${key}...`)
+  console.log(diskActivity)
+  localforage.setItem(key, value).then(() => Vue.set(diskActivity, 0, null))
 }
 const removeFromDisk = key => {
-  diskActivity = `removing ${key}...`
+  Vue.set(diskActivity, 0, `removing ${key}...`)
   localforage
     .removeItem(key)
-    .then(() => (diskActivity = null))
+    .then(() => Vue.set(diskActivity, 0, null))
     .catch(e => console.log(e))
 }
 const loadFromDisk = key => {
   return new Promise((resolve, reject) => {
-    diskActivity = `loading ${key}...`
+    Vue.set(diskActivity, 0, `loading ${key}...`)
     localforage
       .getItem(key)
       .then(value => {
-        diskActivity = null
+        Vue.set(diskActivity, 0, null)
         resolve(value)
       })
       .catch(err => {
-        diskActivity = null
+        Vue.set(diskActivity, 0, null)
         reject(err)
       })
   })
@@ -36,9 +38,9 @@ const clearDisk = () => {
     if (
       window.confirm('Are you sure you want to delete all sounds and labels?')
     ) {
-      diskActivity = 'clearing disk...'
+      Vue.set(diskActivity, 0, 'clearing disk...')
       localforage.clear().then(() => {
-        diskActivity = null
+        Vue.set(diskActivity, 0, null)
         resolve()
       })
     }
@@ -50,7 +52,8 @@ export default {
   state: {
     labels: [],
     sounds: [],
-    selectedSound: null
+    selectedSound: null,
+    diskActivity: diskActivity
   },
   getters: {
     getLabels: state => state.labels,
@@ -58,7 +61,7 @@ export default {
     getSoundsByLabel: state => label =>
       state.sounds.filter(sound => sound.label == label),
     getSelectedSound: state => state.selectedSound,
-    getDiskActivity: () => diskActivity
+    getDiskActivity: state => state.diskActivity[0]
   },
   mutations: {
     addLabel(state, newLabel) {
@@ -158,6 +161,9 @@ export default {
           .then(file => resolve(file))
           .catch(err => reject(err))
       })
+    },
+    saveSounds({ state }) {
+      saveToDisk('sounds', state.sounds)
     }
   }
 }

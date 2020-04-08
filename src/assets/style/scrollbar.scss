@@ -1,0 +1,19 @@
+@import './variables.scss';
+
+/* width */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0);
+  border-radius: 3px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: $blue-extra-light;
+  border-radius: 3px;
+  // box-shadow: -3px 3px 3px rgba(0, 0, 0, 0.25);
+}
