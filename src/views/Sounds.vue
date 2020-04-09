@@ -2,7 +2,7 @@
   <div class="sounds">
     <div class="view-title h4">Sounds</div>
     <div class="vertical-split-holder">
-      <vertical-split>
+      <vertical-split :fraction="0.6">
         <template v-slot:top>
           <browser />
         </template>
@@ -35,6 +35,6 @@ export default {
 }
 .vertical-split-holder {
   margin-top: 1rem;
-  height: calc(100% - 2rem);
+  height: calc(100% - 3rem);
 }
 </style>

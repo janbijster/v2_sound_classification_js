@@ -20,15 +20,23 @@
         <div class="audio-recorder-time">
           {{ timePassedFormatted }}
         </div>
-        <div v-if="!recording && lastRecording" class="audio-recorder-new-btns">
+        <div
+          v-if="!recording && lastRecordingSound"
+          class="audio-recorder-new-btns"
+        >
+          <audio controls :src="lastRecordingSound.file"></audio>
           <div class="btn" @click="saveAndNew">save &amp; new</div>
           <div class="btn" @click="saveAndQuit">save &amp; quit</div>
         </div>
         <div v-if="!recording" class="audio-recorder-quit-btns">
-          <div v-if="lastRecording" class="btn btn-sm" @click="newRecording">
+          <div
+            v-if="lastRecordingSound"
+            class="btn btn-sm"
+            @click="newRecording"
+          >
             discard &amp; new
           </div>
-          <div v-if="lastRecording" class="btn btn-sm" @click="quit">
+          <div v-if="lastRecordingSound" class="btn btn-sm" @click="quit">
             discard &amp; quit
           </div>
           <div v-else class="btn" @click="quit">quit</div>
@@ -57,6 +65,7 @@ export default {
       permissionDenied: false,
       recording: false,
       lastRecording: null,
+      lastRecordingSound: null,
       tickIntervalId: null,
       timePassed: 0
     }
@@ -121,10 +130,23 @@ export default {
           this.timePassed = 0
           this.tickIntervalId = window.setInterval(this.tick, 1000)
           this.recorder = new MediaRecorder(stream)
+          // when stream is stopped:
           this.recorder.addEventListener('dataavailable', e => {
             this.lastRecording = e.data
             this.recording = false
             window.clearInterval(this.tickIntervalId)
+            // convert to dataUrl
+            const reader = new FileReader()
+            reader.onload = e => {
+              console.log('done encoding.')
+              this.lastRecordingSound = {
+                name: this.lastRecording.name || 'recording',
+                type: this.lastRecording.type,
+                file: e.target.result
+              }
+            }
+            console.log('start encoding...')
+            reader.readAsDataURL(this.lastRecording)
           })
 
           console.log('start recording...')
@@ -145,32 +167,22 @@ export default {
       this.timePassed++
     },
     saveAndNew() {
-      this.saveRecording().then(this.newRecording)
+      this.saveRecording()
+      this.newRecording()
     },
     saveAndQuit() {
-      this.saveRecording().then(this.quit)
+      this.saveRecording()
+      this.quit()
     },
     newRecording() {
       this.lastRecording = null
+      this.lastRecordingSound = null
     },
     saveRecording() {
-      return new Promise((resolve, reject) => {
-        if (!this.lastRecording) {
-          return reject(new Error('No recording to save'))
-        }
-        const reader = new FileReader()
-        reader.onload = e => {
-          console.log('done encoding. Emitting sound...')
-          this.$emit('sound', {
-            name: this.lastRecording.name || 'recording',
-            type: this.lastRecording.type,
-            file: e.target.result
-          })
-          resolve()
-        }
-        console.log('start encoding...')
-        reader.readAsDataURL(this.lastRecording)
-      })
+      if (!this.lastRecordingSound) {
+        return
+      }
+      this.$emit('sound', this.lastRecordingSound)
     },
     quit() {
       this.$emit('close')

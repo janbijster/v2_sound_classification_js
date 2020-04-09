@@ -32,7 +32,12 @@
           <div class="sound-property-label">
             play
           </div>
-          <vue-audio class="sound-player" :file="selectedSoundData" />
+          <template v-if="useCustomAudioPlayer">
+            <vue-audio class="sound-player" :file="selectedSoundData" />
+          </template>
+          <template v-else>
+            <audio controls :src="selectedSoundData"></audio>
+          </template>
         </template>
         <template v-else>
           <div class="sound-property-label sound-player-msg">
@@ -46,6 +51,9 @@
         <div class="sound-property sound-type">
           <span class="sound-property-label">type: </span>
           <span>{{ selectedSound.type }}</span>
+        </div>
+        <div class="btn btn-sm" @click="$router.push(`/preprocess`)">
+          preprocess
         </div>
       </div>
     </div>
@@ -61,7 +69,8 @@ export default {
   },
   data() {
     return {
-      selectedSoundData: null
+      selectedSoundData: null,
+      useCustomAudioPlayer: false
     }
   },
   computed: {

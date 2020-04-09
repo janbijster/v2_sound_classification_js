@@ -9,8 +9,9 @@ module.exports = {
     if (process.env.NODE_ENV === 'development') {
       config.output.filename('[name].[hash].js').end()
     }
+  },
+  devServer: {
+    https: true,
+    host: '0.0.0.0'
   }
-  // devServer: {
-  //   https: true
-  // }
 }

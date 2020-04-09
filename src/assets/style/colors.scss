@@ -9,9 +9,16 @@ h4,
 .h3,
 .h4,
 b,
-.b {
+.b,
+a {
   color: $blue;
 }
+a:hover,
+a:visited,
+a:focus {
+  color: $blue-light;
+}
+
 .theme-blue h1,
 .theme-blue h2,
 .theme-blue h3,

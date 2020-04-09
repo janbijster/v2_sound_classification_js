@@ -10,9 +10,9 @@
       </div>
       <div class="side-menu-links">
         <router-link
-          v-for="(link, index) in allLinks"
+          v-for="(link, index) in menuLinks"
           :key="index"
-          :to="link.path"
+          :to="link"
           class="menu-link"
           @click.native="collapsed = true"
           >{{ link.name }}</router-link
@@ -39,7 +39,6 @@ export default {
       maxMenuWidthPx: 500,
       minMenuWidthPx: 350,
       collapsed: true,
-      allLinks: this.$router.options.routes,
       windowWidthPx: 0
     }
   },
@@ -60,6 +59,9 @@ export default {
       return menuWidth < this.minMenuWidthPx
         ? Math.min(this.windowWidthPx, this.minMenuWidthPx)
         : menuWidth
+    },
+    menuLinks() {
+      return this.$router.options.routes.filter(link => link.showInMenu)
     }
   },
   mounted() {

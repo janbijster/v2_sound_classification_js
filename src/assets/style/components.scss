@@ -1,5 +1,7 @@
 @import './variables.scss';
 
+// components and random stuff
+
 .btn {
   display: inline-block;
   margin: 0 0.5rem 0 0;
@@ -49,4 +51,19 @@ select.wide {
   border-radius: 3px;
   background-color: $blue-almost-white;
   z-index: 10;
+}
+
+.box {
+  width: 100%;
+  border-radius: 3px;
+  background-color: $blue-almost-white;
+  padding: 0.5rem;
+  margin: 1rem 0;
+}
+.h-100 {
+  height: 100%;
+}
+
+audio:focus {
+  outline: none;
 }

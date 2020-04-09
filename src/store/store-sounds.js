@@ -60,6 +60,8 @@ export default {
     getAllSounds: state => state.sounds,
     getSoundsByLabel: state => label =>
       state.sounds.filter(sound => sound.label == label),
+    getSoundByIdentifier: state => identifier =>
+      state.sounds.find(sound => sound.identifier == identifier),
     getSelectedSound: state => state.selectedSound,
     getDiskActivity: state => state.diskActivity[0]
   },

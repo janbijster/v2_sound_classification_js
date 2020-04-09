@@ -1,5 +1,5 @@
 <template>
-  <div class="browser align-left">
+  <div class="browser text-left">
     <div class="browser-labels">
       <div class="browser-content">
         <div class="browser-title b">labels</div>
