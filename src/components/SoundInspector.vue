@@ -95,16 +95,25 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/assets/style/variables.scss';
 $splitLeft: 33%;
 $splitRight: 67%;
 
+.sound-inspector {
+  height: 100%;
+}
+.sound-inspector-content {
+  height: 100%;
+}
 .sound-inspector,
 .sound-inspector-content {
   text-align: left;
   position: relative;
-  height: 100%;
   width: 100%;
   overflow: hidden;
+  background-color: $blue-almost-white;
+  padding: 0.5rem;
+  border-radius: 3px;
 }
 .sound-inspector-part {
   position: absolute;

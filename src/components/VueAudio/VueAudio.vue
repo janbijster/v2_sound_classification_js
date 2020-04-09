@@ -44,9 +44,10 @@
 $prefixCls: 'vue-sound';
 .#{$prefixCls}-wrapper {
   .#{$prefixCls}__player {
-    height: 40px;
-    line-height: 30px;
+    height: 2rem;
+    line-height: 1rem;
     margin-left: -6px;
+    margin-bottom: 0.25rem;
 
     a {
       cursor: pointer;
@@ -62,6 +63,7 @@ $prefixCls: 'vue-sound';
     .#{$prefixCls}__time-display {
       font-size: 12px;
       margin-left: 6px;
+      vertical-align: sub;
     }
 
     .#{$prefixCls}__playback-time-separator::after {
@@ -73,10 +75,10 @@ $prefixCls: 'vue-sound';
       position: relative;
       width: 126px;
       display: block;
-      background: $blue-almost-white;
+      background: #fff;
       height: 3px;
       cursor: pointer;
-      margin: 0.5rem 6px 0;
+      margin: 0.25rem 6px 0;
       vertical-align: middle;
 
       .#{$prefixCls}__playback-time-indicator {

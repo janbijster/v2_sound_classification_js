@@ -149,6 +149,9 @@ export default {
   height: 100%;
   overflow: hidden;
   position: absolute;
+  background-color: $blue-almost-white;
+  padding: 0.5rem;
+  border-radius: 3px;
 }
 .browser-labels {
   width: calc(33% - 0.5rem);
@@ -173,7 +176,7 @@ export default {
   right: 0px;
   border-radius: 3px;
   height: 12px;
-  box-shadow: 0px 0px 2px 3px #ffffff;
+  box-shadow: 0px 0px 2px 3px $blue-almost-white;
 }
 .browser-item-delete > span {
   line-height: 15px;
@@ -187,8 +190,7 @@ export default {
   position: relative;
 }
 .browser-list-item.selected {
-  background: $blue-almost-white;
-  border-radius: 2px;
+  color: $blue;
 }
 .browser-scroll {
   height: calc(100% - 2rem);
