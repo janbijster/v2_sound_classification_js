@@ -1,5 +1,5 @@
 export default {
-  padAndCut(spectrogram, length = 173, overlapFraction = 0.5) {
+  padAndCut(spectrogram, overlapFraction = 0.5, length = 173) {
     const totalLength = spectrogram.length
     const overlapLength = Math.round(overlapFraction * length)
     const hopSize = length - overlapLength
@@ -12,11 +12,10 @@ export default {
       if (end > totalLength) {
         const padLength = end - totalLength
         slicedSpectrogram = [
-          ...spectrogram.slice(0, padLength),
-          ...slicedSpectrogram
+          ...slicedSpectrogram,
+          ...spectrogram.slice(0, padLength)
         ]
       }
-      console.log(slicedSpectrogram.length)
       spectrograms.push(slicedSpectrogram)
     }
     return spectrograms
@@ -29,7 +28,7 @@ export default {
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const pos = (y * width + x) * 4 // position in buffer based on x and y
-        const value = spectrogram[x][y]
+        const value = spectrogram[x][height - y - 1] * 255
         buffer[pos] = value // some R value [0, 255]
         buffer[pos + 1] = value // some G value
         buffer[pos + 2] = value // some B value

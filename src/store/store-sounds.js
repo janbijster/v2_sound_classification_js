@@ -96,22 +96,24 @@ export default {
     addSound(state, { name, type, label, file }) {
       const datetime = moment().format('YYYY-MM-DD HH:mm:ss')
       const identifier = uuidv4()
-      state.sounds.push({
+      const newSound = {
         label: label,
         name: name,
         type: type,
         datetime,
         identifier
-      })
+      }
+      state.sounds.push(newSound)
+      state.selectedSound = newSound
       saveToDisk(`sound-file-${identifier}`, file)
       saveToDisk('sounds', state.sounds)
     },
     deleteSound(state, sound) {
       if (window.confirm(`Delete this sound?`)) {
+        state.selectedSound = null
         state.sounds = state.sounds.filter(
           oldSound => oldSound.identifier != sound.identifier
         )
-        state.selectedSound = null
         saveToDisk('sounds', state.sounds)
         removeFromDisk(`sound-file-${sound.identifier}`)
       }

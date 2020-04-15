@@ -52,8 +52,18 @@
           <span class="sound-property-label">type: </span>
           <span>{{ selectedSound.type }}</span>
         </div>
-        <div class="btn btn-sm" @click="$router.push(`/preprocess`)">
-          preprocess
+        <div class="sound-property sound-preprocessed">
+          <template v-if="selectedSound.spectrograms">
+            <span class="sound-property-label"
+              >{{ selectedSound.spectrograms.length }} spectrograms
+            </span>
+          </template>
+          <template v-else>
+            <span class="sound-property-label">Not preprocessed </span>
+          </template>
+          <div class="btn btn-sm" @click="$router.push(`/preprocess`)">
+            preprocess
+          </div>
         </div>
       </div>
     </div>

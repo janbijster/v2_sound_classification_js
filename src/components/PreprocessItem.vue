@@ -20,17 +20,24 @@
           <audio ref="audio" controls preload="auto" :src="audioSource"></audio>
         </div>
         <!-- spectrograms: -->
-        <template v-if="!spectrograms || spectrograms.length == 0">
-          <div class="btn" @click="preprocessSound">preprocess</div>
+        <template v-if="!sound.spectrograms || sound.spectrograms.length == 0">
+          <div class="btn" @click="preprocessSoundBtn">preprocess</div>
         </template>
         <template v-else>
-          <div class="spectrogram-holder">
+          <div class="spectrograms-info">
+            {{ sound.spectrograms.length }} spectrograms ({{
+              sound.spectrograms.length * 4
+            }}
+            s)
+          </div>
+          <div class="spectrograms-holder">
             <img
-              v-for="(spectrogram, index) in spectrograms"
+              v-for="(spectrogram, index) in sound.spectrograms"
               :key="index"
               :src="spectrogramImage(spectrogram)"
             />
           </div>
+          <div class="btn" @click="preprocessSoundBtn">preprocess again</div>
         </template>
         <!-- end spectrograms -->
       </template>
@@ -61,24 +68,46 @@ export default {
     }
   },
   mounted() {
-    this.loadSound()
+    this.loadSound(this.sound)
+      .then(audioSource => {
+        this.audioSource = audioSource
+      })
+      .catch(err => console.log(err))
   },
   methods: {
-    loadSound() {
-      // check if a sound is selected
-      if (this.sound == null) return
-      this.$store
-        .dispatch('sounds/loadSoundFile', this.sound)
-        .then(audioSource => (this.audioSource = audioSource))
+    preprocessSoundBtn() {
+      this.preprocessSound(this.audioSource, this.sound)
     },
-    preprocessSound() {
-      if (!this.audioSource) return
-      audioUtils.dataURIToAudioBuffer(this.audioSource).then(audioBuffer => {
-        console.log(audioBuffer)
-        const completeSpectrogram = audioUtils.analyzeMfcc(audioBuffer)
-        const spectrograms = imageUtils.padAndCut(completeSpectrogram)
-        console.log(completeSpectrogram.length, spectrograms.length)
-        this.spectrograms = spectrograms
+    loadSound(sound) {
+      return new Promise((resolve, reject) => {
+        // check if a sound is selected
+        if (sound == null) {
+          reject(new Error('no sound selected'))
+        } else {
+          this.$store
+            .dispatch('sounds/loadSoundFile', sound)
+            .then(audioSource => resolve(audioSource))
+        }
+      })
+    },
+    preprocessSound(audioSource, sound) {
+      return new Promise((resolve, reject) => {
+        if (!audioSource) {
+          reject(new Error('no audioSource'))
+        } else {
+          this.$set(sound, 'spectrograms', null)
+          audioUtils
+            .dataURIToAudioBuffer(audioSource)
+            .then(audioBuffer => {
+              const completeSpectrogram = audioUtils.analyzeMfcc(audioBuffer)
+              const spectrograms = imageUtils.padAndCut(completeSpectrogram)
+              // save spectrograms on sound
+              this.$set(sound, 'spectrograms', spectrograms)
+              this.$store.dispatch('sounds/saveSounds')
+              resolve(spectrograms)
+            })
+            .catch(err => reject(err))
+        }
       })
     },
     spectrogramImage(spectrogram) {
@@ -97,5 +126,20 @@ export default {
   right: 0.5rem;
   bottom: 0.5rem;
   margin: 0;
+}
+.spectrograms-info {
+  margin-bottom: 0.5rem;
+}
+.spectrograms-holder {
+  width: 100%;
+  height: 50%;
+  overflow: scroll;
+  padding: 0.5rem;
+  background-color: #fff;
+  border-radius: 3px;
+  margin-bottom: 0.5rem;
+}
+.spectrograms-holder > img {
+  margin: 0.25rem;
 }
 </style>

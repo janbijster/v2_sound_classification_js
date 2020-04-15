@@ -1,18 +1,27 @@
 import Meyda from 'meyda'
 
 export default {
-  analyzeMfcc(buffer, hopSize = 512, numCoefficients = 40) {
+  analyzeMfcc(
+    buffer,
+    hopSize = 512,
+    numCoefficients = 40,
+    normalize = val => (val + 100) / 255
+  ) {
     Meyda.numberOfMFCCCoefficients = numCoefficients
     Meyda.bufferSize = hopSize
     const data = buffer.getChannelData(0)
     const numSamples = data.length
     const numHops = Math.floor(numSamples / hopSize)
-    const mfcc = []
+    const spectrogram = []
     for (let i = 0; i < numHops; i++) {
       const dataSlice = data.slice(i * hopSize, (i + 1) * hopSize)
-      mfcc.push(Meyda.extract(['mfcc'], dataSlice).mfcc)
+      // extract features
+      let features = Meyda.extract(['mfcc'], dataSlice).mfcc
+      // normalize and clamp to 0-1
+      features = features.map(val => Math.min(1, Math.max(normalize(val), 0)))
+      spectrogram.push(features)
     }
-    return mfcc
+    return spectrogram
   },
   dataURIToAudioBuffer(dataURI, sampleRate = 22050) {
     return new Promise((resolve, reject) => {
