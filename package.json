@@ -9,6 +9,7 @@
     "gh-pages-deploy": "node scripts/gh-pages-deploy.js"
   },
   "dependencies": {
+    "audio-context-polyfill": "^1.0.0",
     "audio-recorder-polyfill": "^0.3.4",
     "core-js": "^3.6.4",
     "eslint-config-prettier": "^6.10.0",
