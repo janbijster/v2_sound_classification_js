@@ -30,8 +30,14 @@
               <select-multiple
                 label="Labels"
                 :items="labelObjects"
+                :adjustable="!modelIsCreated"
+                class="select-labels"
                 @change="selectLabels"
               />
+              <div v-if="canCreateModel" class="btn" @click="createModel">
+                Create model
+              </div>
+              <div v-if="modelIsCreated" class="model-info">Model created</div>
             </template>
           </div>
         </template>
@@ -44,6 +50,7 @@
 import VerticalSplit from '@/components/VerticalSplit'
 import ItemList from '@/components/ItemList'
 import SelectMultiple from '@/components/SelectMultiple'
+import trainingUtils from '@/utils/trainingUtils'
 
 const nullLabelObject = { name: 'unlabeled', value: null }
 
@@ -54,7 +61,22 @@ export default {
     ItemList,
     SelectMultiple
   },
+  data() {
+    return {
+      selectedLabels: []
+    }
+  },
   computed: {
+    modelIsCreated() {
+      return this.selectedModel.model != undefined
+    },
+    canCreateModel() {
+      return (
+        this.selectedModel &&
+        !this.modelIsCreated &&
+        this.selectedLabels.length > 1
+      )
+    },
     models() {
       return this.$store.getters['models/getModels']
     },
@@ -78,6 +100,15 @@ export default {
         this.$store.commit('models/addModel', { name: modelPrompt })
       }
     },
+    createModel() {
+      if (!this.selectedModel) return
+      const model = trainingUtils.getModel(this.selectedLabels.length)
+      model.summary()
+      console.log(model)
+      // todo save model
+      // implement in store or in DiskIO.
+      // use model.save, but check if indexedDB or localstorage is available
+    },
     selectModel(model) {
       this.$store.commit('models/selectModel', model)
     },
@@ -85,7 +116,7 @@ export default {
       this.$store.commit('models/deleteModel', model)
     },
     selectLabels(labels) {
-      console.log(labels)
+      this.selectedLabels = labels
     }
   }
 }
@@ -114,5 +145,8 @@ export default {
 }
 .model-property-label {
   opacity: 0.5;
+}
+.select-labels {
+  margin-bottom: 0.5rem;
 }
 </style>
