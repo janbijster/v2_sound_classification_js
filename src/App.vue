@@ -17,7 +17,9 @@ export default {
     StatusMessage
   },
   mounted() {
-    this.$store.dispatch('sounds/loadAll')
+    this.$store.dispatch('loadAll')
+    // this.$store.dispatch('sounds/loadAll')
+    // this.$store.dispatch('models/loadAll')
   }
 }
 </script>

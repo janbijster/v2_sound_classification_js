@@ -18,7 +18,7 @@
           >{{ link.name }}</router-link
         >
         <div class="side-menu-separator" />
-        <div class="menu-link" @click="clearSounds">Clear all sounds</div>
+        <div class="menu-link" @click="clearAll">Delete everything</div>
       </div>
     </div>
   </div>
@@ -77,9 +77,9 @@ export default {
     getWindowWidth() {
       this.windowWidthPx = document.documentElement.clientWidth
     },
-    clearSounds() {
+    clearAll() {
       this.collapsed = true
-      this.$store.dispatch('sounds/clearAll')
+      this.$store.dispatch('clearAll')
     }
   }
 }

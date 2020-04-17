@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Sounds from '@/views/Sounds'
 import Preprocess from '@/views/Preprocess'
+import Models from '@/views/Models'
 
 Vue.use(VueRouter)
 
@@ -18,6 +19,12 @@ const routes = [
     name: 'Preprocess',
     showInMenu: true,
     component: Preprocess
+  },
+  {
+    path: '/models/',
+    name: 'Models',
+    showInMenu: true,
+    component: Models
   },
   {
     path: '/about',

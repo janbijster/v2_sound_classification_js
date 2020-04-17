@@ -3,34 +3,12 @@
     <div class="browser-labels">
       <div class="browser-content">
         <div class="browser-title b">labels</div>
-        <div class="browser-scroll">
-          <div
-            :class="[
-              'browser-list-item browser-label',
-              selectedLabel == null ? 'selected' : ''
-            ]"
-            @click="selectedLabel = null"
-          >
-            <span>unlabeled ({{ soundsByLabel(null).length }})</span>
-          </div>
-          <div
-            v-for="(label, index) in labels"
-            :key="index"
-            :class="[
-              'browser-list-item browser-label',
-              selectedLabel == label ? 'selected' : ''
-            ]"
-            @click="selectedLabel = label"
-          >
-            <span>{{ label }} ({{ soundsByLabel(label).length }})</span>
-            <div
-              class="browser-item-delete"
-              @click="deleteLabel(label, $event)"
-            >
-              <close :size="12" />
-            </div>
-          </div>
-        </div>
+        <item-list
+          :items="labelObjects"
+          :selected-item="labelObjectByValue(selectedLabel)"
+          @select="labelObject => (selectedLabel = labelObject.value)"
+          @delete="labelObject => deleteLabel(labelObject.value)"
+        />
       </div>
       <div class="browser-bottom-btns">
         <div class="btn btn-sm" @click="newLabel">new label</div>
@@ -39,25 +17,12 @@
     <div class="browser-sounds">
       <div class="browser-content">
         <div class="browser-title b">sounds</div>
-        <div class="browser-scroll">
-          <div
-            v-for="(sound, index) in sounds"
-            :key="index"
-            :class="[
-              'browser-list-item browser-sound',
-              selectedSound == sound ? 'selected' : ''
-            ]"
-            @click="selectSound(sound)"
-          >
-            <span class="op-50">{{ sound.datetime }}</span> {{ sound.name }}
-            <div
-              class="browser-item-delete"
-              @click="deleteSound(sound, $event)"
-            >
-              <close :size="12" />
-            </div>
-          </div>
-        </div>
+        <item-list
+          :items="sounds"
+          :selected-item="selectedSound"
+          @select="selectSound"
+          @delete="deleteSound"
+        />
       </div>
       <div class="browser-bottom-btns">
         <upload-sound-button btn-class="btn btn-sm" @sound="uploadSound" />
@@ -70,22 +35,30 @@
 <script>
 import UploadSoundButton from '@/components/UploadSoundButton'
 import RecordAudioButton from '@/components/RecordAudioButton'
-import Close from 'vue-material-design-icons/Close.vue'
+import ItemList from '@/components/ItemList'
+
+const nullLabelObject = { name: 'unlabeled', value: null }
 
 export default {
   components: {
     UploadSoundButton,
     RecordAudioButton,
-    Close
+    ItemList
   },
   data() {
     return {
-      selectedLabel: null
+      selectedLabel: nullLabelObject.value
     }
   },
   computed: {
-    labels() {
-      return this.$store.getters['sounds/getLabels']
+    labelObjects() {
+      return [
+        nullLabelObject,
+        ...this.$store.getters['sounds/getLabels'].map(label => ({
+          name: label,
+          value: label
+        }))
+      ]
     },
     sounds() {
       return this.soundsByLabel(this.selectedLabel)
@@ -100,10 +73,15 @@ export default {
         .dispatch('sounds/newLabel')
         .then(label => (this.selectedLabel = label || this.selectedLabel))
     },
-    deleteLabel(label, event) {
-      event.stopImmediatePropagation()
+    deleteLabel(label) {
       this.$store.commit('sounds/deleteLabel', label)
       this.selectedLabel = null
+    },
+    labelObjectByValue(label) {
+      return (
+        this.labelObjects.find(labelObject => labelObject.value == label) ||
+        nullLabelObject
+      )
     },
     uploadSound(sound) {
       this.$store.commit('sounds/addSound', {
@@ -114,8 +92,7 @@ export default {
     recordSound() {
       console.log('record')
     },
-    deleteSound(sound, event) {
-      event.stopImmediatePropagation()
+    deleteSound(sound) {
       this.$store.commit('sounds/deleteSound', sound)
     },
     soundsByLabel(label) {
@@ -181,16 +158,6 @@ export default {
 .browser-item-delete > span {
   line-height: 15px;
   vertical-align: top;
-}
-.browser-list-item {
-  cursor: pointer;
-  height: 1.3rem;
-  overflow: hidden;
-  white-space: nowrap;
-  position: relative;
-}
-.browser-list-item.selected {
-  color: $blue;
 }
 .browser-scroll {
   height: calc(100% - 2rem);

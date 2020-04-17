@@ -1,51 +1,6 @@
 import moment from 'moment'
 import { v4 as uuidv4 } from 'uuid'
-import localforage from 'localforage'
-import Vue from 'vue'
-
-// Functions for saving to and loading from disk
-localforage.setDriver('asyncStorage') // force indexedDB
-const diskActivity = []
-const saveToDisk = (key, value) => {
-  Vue.set(diskActivity, 0, `saving ${key}...`)
-  console.log(diskActivity)
-  localforage.setItem(key, value).then(() => Vue.set(diskActivity, 0, null))
-}
-const removeFromDisk = key => {
-  Vue.set(diskActivity, 0, `removing ${key}...`)
-  localforage
-    .removeItem(key)
-    .then(() => Vue.set(diskActivity, 0, null))
-    .catch(e => console.log(e))
-}
-const loadFromDisk = key => {
-  return new Promise((resolve, reject) => {
-    Vue.set(diskActivity, 0, `loading ${key}...`)
-    localforage
-      .getItem(key)
-      .then(value => {
-        Vue.set(diskActivity, 0, null)
-        resolve(value)
-      })
-      .catch(err => {
-        Vue.set(diskActivity, 0, null)
-        reject(err)
-      })
-  })
-}
-const clearDisk = () => {
-  return new Promise(resolve => {
-    if (
-      window.confirm('Are you sure you want to delete all sounds and labels?')
-    ) {
-      Vue.set(diskActivity, 0, 'clearing disk...')
-      localforage.clear().then(() => {
-        Vue.set(diskActivity, 0, null)
-        resolve()
-      })
-    }
-  })
-}
+import DiskIO from '@/utils/DiskIO'
 
 export default {
   namespaced: true,
@@ -53,7 +8,7 @@ export default {
     labels: [],
     sounds: [],
     selectedSound: null,
-    diskActivity: diskActivity
+    diskActivity: DiskIO.diskActivity
   },
   getters: {
     getLabels: state => state.labels,
@@ -74,7 +29,7 @@ export default {
       })
       if (found == false) {
         state.labels = [...state.labels, newLabel]
-        saveToDisk('labels', state.labels)
+        DiskIO.saveToDisk('labels', state.labels)
       } else {
         alert('Label already exists.')
       }
@@ -89,8 +44,8 @@ export default {
           }
           return sound
         })
-        saveToDisk('labels', state.labels)
-        saveToDisk('sounds', state.sounds)
+        DiskIO.saveToDisk('labels', state.labels)
+        DiskIO.saveToDisk('sounds', state.sounds)
       }
     },
     addSound(state, { name, type, label, file }) {
@@ -105,8 +60,8 @@ export default {
       }
       state.sounds.push(newSound)
       state.selectedSound = newSound
-      saveToDisk(`sound-file-${identifier}`, file)
-      saveToDisk('sounds', state.sounds)
+      DiskIO.saveToDisk(`sound-file-${identifier}`, file)
+      DiskIO.saveToDisk('sounds', state.sounds)
     },
     deleteSound(state, sound) {
       if (window.confirm(`Delete this sound?`)) {
@@ -114,12 +69,17 @@ export default {
         state.sounds = state.sounds.filter(
           oldSound => oldSound.identifier != sound.identifier
         )
-        saveToDisk('sounds', state.sounds)
-        removeFromDisk(`sound-file-${sound.identifier}`)
+        DiskIO.saveToDisk('sounds', state.sounds)
+        DiskIO.removeFromDisk(`sound-file-${sound.identifier}`)
       }
     },
     selectSound(state, sound) {
       state.selectedSound = sound
+    },
+    reset(state) {
+      state.labels = []
+      state.sounds = []
+      state.selectedSound = null
     }
   },
   actions: {
@@ -137,12 +97,12 @@ export default {
     },
     loadAll({ state }) {
       console.log('loading sounds and labels...')
-      loadFromDisk('labels')
+      DiskIO.loadFromDisk('labels')
         .then(labels => {
           if (labels != null) {
             state.labels = labels
           }
-          loadFromDisk('sounds')
+          DiskIO.loadFromDisk('sounds')
             .then(sounds => {
               if (sounds != null) {
                 state.sounds = sounds
@@ -152,22 +112,15 @@ export default {
         })
         .catch(err => console.log(err))
     },
-    clearAll({ state }) {
-      clearDisk().then(() => {
-        state.labels = []
-        state.sounds = []
-        state.electedSound = null
-      })
-    },
     loadSoundFile(_, sound) {
       return new Promise((resolve, reject) => {
-        loadFromDisk(`sound-file-${sound.identifier}`)
+        DiskIO.loadFromDisk(`sound-file-${sound.identifier}`)
           .then(file => resolve(file))
           .catch(err => reject(err))
       })
     },
     saveSounds({ state }) {
-      saveToDisk('sounds', state.sounds)
+      DiskIO.saveToDisk('sounds', state.sounds)
     }
   }
 }
