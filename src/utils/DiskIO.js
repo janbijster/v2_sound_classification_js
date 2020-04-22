@@ -1,10 +1,21 @@
 import Vue from 'vue'
 import localforage from 'localforage'
+import * as tf from '@tensorflow/tfjs'
 
-localforage.setDriver('asyncStorage') // force indexedDB
+localforage.ready().then(() => {
+  if (localforage.driver() != localforage.INDEXEDDB) {
+    alert(
+      'Warning: IndexedDB is not available for local storage in this browser. Some components may not work.'
+    )
+  }
+})
 
 export default {
   diskActivity: [],
+  hasIndexedDB: () => localforage.driver() == localforage.INDEXEDDB,
+  storagePath() {
+    return this.hasIndexedDB ? 'indexeddb://' : 'localstorage://'
+  },
   saveToDisk(key, value) {
     Vue.set(this.diskActivity, 0, `saving ${key}...`)
     console.log(this.diskActivity)
@@ -34,6 +45,49 @@ export default {
         })
     })
   },
+  saveTfModel(model, tfModel) {
+    return new Promise(resolve => {
+      Vue.set(this.diskActivity, 0, `saving model file for ${model.name}...`)
+      tfModel
+        .save(`${this.storagePath()}model-file-${model.identifier}`)
+        .then(() => {
+          Vue.set(this.diskActivity, 0, null)
+          resolve()
+        })
+    })
+  },
+  loadTfModel(model) {
+    return new Promise((resolve, reject) => {
+      Vue.set(this.diskActivity, 0, `loading model file for ${model.name}...`)
+      tf.loadLayersModel(`${this.storagePath()}model-file-${model.identifier}`)
+        .then(model => {
+          Vue.set(this.diskActivity, 0, null)
+          resolve(model)
+        })
+        .catch(err => {
+          Vue.set(this.diskActivity, 0, null)
+          reject(err)
+        })
+    })
+  },
+  clearTfModel(model) {
+    Vue.set(this.diskActivity, 0, `removing model file for ${model.name}...`)
+    tf.io
+      .removeModel(`${this.storagePath()}model-file-${model.identifier}`)
+      .then(() => Vue.set(this.diskActivity, 0, null))
+      .catch(err => {
+        Vue.set(this.diskActivity, 0, null)
+        console.log(err)
+      })
+  },
+  clearAllTfModels() {
+    tf.io.listModels().then(models => {
+      Object.keys(models).forEach(modelPath => {
+        // TODO make this asynchronous, wait for each remove to finish before the next
+        tf.io.removeModel(modelPath)
+      })
+    })
+  },
   clearDisk() {
     return new Promise(resolve => {
       if (
@@ -42,6 +96,7 @@ export default {
         )
       ) {
         Vue.set(this.diskActivity, 0, 'clearing disk...')
+        this.clearAllTfModels()
         localforage.clear().then(() => {
           Vue.set(this.diskActivity, 0, null)
           resolve()

@@ -20,13 +20,18 @@ export default {
     addModel(state, model) {
       const created = moment().format('YYYY-MM-DD HH:mm:ss')
       const identifier = uuidv4()
-      const newModel = { created, identifier, ...model }
+      const hasTfModel = false
+      const labels = []
+      const newModel = { created, identifier, hasTfModel, labels, ...model }
       state.models.push(newModel)
       state.selectedModel = newModel
       DiskIO.saveToDisk('models', state.models)
     },
     deleteModel(state, model) {
       if (window.confirm(`Delete model ${model.name}?`)) {
+        if (model.hasTfModel) {
+          DiskIO.clearTfModel(model)
+        }
         state.models = state.models.filter(oldModel => oldModel != model)
         DiskIO.saveToDisk('models', state.models)
       }
@@ -40,6 +45,11 @@ export default {
     }
   },
   actions: {
+    saveTfModel(_, { model, tfModel }) {
+      return new Promise(resolve => {
+        DiskIO.saveTfModel(model, tfModel).then(() => resolve())
+      })
+    },
     loadAll({ state }) {
       console.log('loading models...')
       DiskIO.loadFromDisk('models')

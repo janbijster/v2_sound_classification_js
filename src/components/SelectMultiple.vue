@@ -6,10 +6,7 @@
     <div
       v-for="(item, index) in items"
       :key="index"
-      :class="[
-        'select-multiple-item',
-        localSelected.includes(item) ? 'selected' : ''
-      ]"
+      :class="['select-multiple-item', isSelected(item) ? 'selected' : '']"
       @click="toggle(item)"
     >
       {{ item[displayProperty] }}
@@ -21,6 +18,7 @@
 export default {
   props: {
     items: {
+      // items is assumed to be an array with objects, each object has a 'value' key and a 'name' (or other displayProperty)
       type: Array,
       default: () => []
     },
@@ -29,6 +27,7 @@ export default {
       default: 'name'
     },
     selected: {
+      // selected is assumed to be an array containing only values. So is the array passed along with the 'change' event
       type: Array,
       default: () => []
     },
@@ -52,14 +51,19 @@ export default {
     }
   },
   methods: {
+    isSelected(toggleItem) {
+      return this.localSelected.some(
+        selectedValue => toggleItem.value == selectedValue
+      )
+    },
     toggle(toggleItem) {
       if (!this.adjustable) return
-      if (this.localSelected.includes(toggleItem)) {
+      if (this.isSelected(toggleItem)) {
         this.localSelected = this.localSelected.filter(
-          item => item != toggleItem
+          selectedValue => selectedValue != toggleItem.value
         )
       } else {
-        this.localSelected.push(toggleItem)
+        this.localSelected.push(toggleItem.value)
       }
       this.$emit('change', this.localSelected)
     }

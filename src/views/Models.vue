@@ -31,10 +31,11 @@
                 label="Labels"
                 :items="labelObjects"
                 :adjustable="!modelIsCreated"
+                :selected="selectedModel.labels"
                 class="select-labels"
                 @change="selectLabels"
               />
-              <div v-if="canCreateModel" class="btn" @click="createModel">
+              <div v-if="canCreateModel" class="btn" @click="createTfModel">
                 Create model
               </div>
               <div v-if="modelIsCreated" class="model-info">Model created</div>
@@ -68,7 +69,7 @@ export default {
   },
   computed: {
     modelIsCreated() {
-      return this.selectedModel.model != undefined
+      return this.selectedModel.hasTfModel
     },
     canCreateModel() {
       return (
@@ -86,28 +87,41 @@ export default {
     labelObjects() {
       return [
         nullLabelObject,
-        ...this.$store.getters['sounds/getLabels'].map(label => ({
-          name: label,
-          value: label
-        }))
+        ...this.labelsToObjects(this.$store.getters['sounds/getLabels'])
       ]
     }
   },
   methods: {
+    labelsToObjects(labels) {
+      return labels.map(label => ({
+        name: label,
+        value: label
+      }))
+    },
+    objectsToLabels(objects) {
+      return objects.map(obj => obj.value)
+    },
     newModel() {
       const modelPrompt = window.prompt('New model name:')
       if (modelPrompt != null) {
         this.$store.commit('models/addModel', { name: modelPrompt })
       }
     },
-    createModel() {
+    createTfModel() {
       if (!this.selectedModel) return
-      const model = trainingUtils.getModel(this.selectedLabels.length)
-      model.summary()
-      console.log(model)
-      // todo save model
-      // implement in store or in DiskIO.
-      // use model.save, but check if indexedDB or localstorage is available
+      if (!this.canCreateModel) return
+      const tfModel = trainingUtils.getModel(this.selectedLabels.length)
+      tfModel.summary()
+      this.$store
+        .dispatch('models/saveTfModel', {
+          model: this.selectedModel,
+          tfModel
+        })
+        .then(() => {
+          this.$set(this.selectedModel, 'hasTfModel', true)
+          this.$set(this.selectedModel, 'labels', this.selectedLabels)
+          this.$store.dispatch('models/saveModels')
+        })
     },
     selectModel(model) {
       this.$store.commit('models/selectModel', model)
