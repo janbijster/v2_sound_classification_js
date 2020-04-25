@@ -50,6 +50,13 @@ export default {
         DiskIO.saveTfModel(model, tfModel).then(() => resolve())
       })
     },
+    loadTfModel(_, { model }) {
+      return new Promise((resolve, reject) => {
+        DiskIO.loadTfModel(model)
+          .then(tfModel => resolve(tfModel))
+          .catch(err => reject(err))
+      })
+    },
     loadAll({ state }) {
       console.log('loading models...')
       DiskIO.loadFromDisk('models')

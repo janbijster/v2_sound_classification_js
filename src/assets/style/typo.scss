@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&family=Source+Code+Pro:wght@600&display=swap');
 
 html,
 body,
@@ -73,4 +73,9 @@ a:hover,
 }
 .text-right {
   texttext-align: right;
+}
+
+.mono {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.75rem;
 }

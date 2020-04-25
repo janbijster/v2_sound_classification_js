@@ -1,7 +1,8 @@
 <template>
   <div :class="['select-multiple', adjustable ? 'adjustable' : 'static']">
     <div v-if="label && label != ''" class="select-multiple-label">
-      {{ label }} ({{ localSelected.length }}/{{ items.length }})
+      {{ label }}
+      <span class="op-50">({{ localSelected.length }}/{{ items.length }})</span>
     </div>
     <div
       v-for="(item, index) in items"
@@ -76,6 +77,9 @@ export default {
 
 .select-multiple.adjustable {
   background-color: #fff;
+}
+.select-multiple.static {
+  background-color: rgba(255, 255, 255, 0.5);
 }
 .select-multiple {
   padding: 0.25rem;

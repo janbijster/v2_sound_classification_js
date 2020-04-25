@@ -46,7 +46,7 @@ export default {
         kernelInitializer: 'varianceScaling'
       })
     )
-    model.add(tf.layers.maxPooling2d({ poolSize: [2, 2], strides: [2, 2] }))
+    model.add(tf.layers.maxPooling2d({ poolSize: [4, 4], strides: [4, 4] })) // was: model.add(tf.layers.maxPooling2d({ poolSize: [2, 2], strides: [2, 2] }))
 
     // Now we flatten the output from the 2D filters into a 1D vector to prepare
     // it for input into our last layer. This is common practice when feeding
@@ -55,7 +55,7 @@ export default {
 
     model.add(
       tf.layers.dense({
-        units: 64,
+        units: 16, // was: units: 64,
         kernelInitializer: 'glorotUniform',
         activation: 'relu'
       })
@@ -71,7 +71,9 @@ export default {
         activation: 'sigmoid'
       })
     )
-
+    return model
+  },
+  compile(model) {
     // Choose an optimizer, loss function and accuracy metric,
     // then compile and return the model
     const optimizer = tf.train.rmsprop(0.001)
@@ -80,38 +82,52 @@ export default {
       loss: 'categoricalCrossentropy',
       metrics: ['accuracy']
     })
-
     return model
   },
-  train(model, data) {
-    // const metrics = ['loss', 'val_loss', 'acc', 'val_acc']
-    // const container = {
-    //   name: 'Model Training',
-    //   styles: { height: '1000px' }
-    // }
-    // const fitCallbacks = tfvis.show.fitCallbacks(container, metrics)
-
-    const BATCH_SIZE = 32
-    const TRAIN_DATA_SIZE = 5500
-    const TEST_DATA_SIZE = 1000
-
-    const [trainXs, trainYs] = tf.tidy(() => {
-      const d = data.nextTrainBatch(TRAIN_DATA_SIZE)
-      return [d.xs.reshape([TRAIN_DATA_SIZE, 28, 28, 1]), d.labels]
+  getModelSummary(model) {
+    const summaryLines = []
+    model.summary(60, null, line => summaryLines.push(line))
+    return summaryLines
+  },
+  prepareData(
+    spectrogramsByLabel,
+    imageWidth = 173,
+    imageHeight = 40,
+    numChannels = 1
+  ) {
+    // organize data in X and Y
+    const labels = spectrogramsByLabel.map(obj => obj.label)
+    const numClasses = labels.length
+    const X = []
+    const Y = []
+    spectrogramsByLabel.forEach(({ label, spectrograms }) => {
+      const labelIndex = labels.indexOf(label)
+      // TODO this may be slow for many samples
+      spectrograms.forEach(spectrogram => {
+        Y.push(labelIndex)
+        X.push(spectrogram)
+      })
     })
+    const trainSize = X.length
+    // console.log(spectrogramsByLabel)
+    // console.log(labels, X, Y)
 
-    const [testXs, testYs] = tf.tidy(() => {
-      const d = data.nextTestBatch(TEST_DATA_SIZE)
-      return [d.xs.reshape([TEST_DATA_SIZE, 28, 28, 1]), d.labels]
-    })
+    // TODO put this in a tf.tidy()?
+    const trainX = tf
+      .tensor3d(X)
+      .reshape([trainSize, imageWidth, imageHeight, numChannels])
+    console.log(tf.tensor1d(Y, 'int32'))
+    const trainY = tf.oneHot(tf.tensor1d(Y, 'int32'), numClasses)
 
-    return model.fit(trainXs, trainYs, {
-      batchSize: BATCH_SIZE,
-      validationData: [testXs, testYs],
-      epochs: 10,
+    return { trainX, trainY }
+  },
+  train(model, { trainX, trainY }, callbacks = {}, epochs = 1, batchSize = 32) {
+    return model.fit(trainX, trainY, {
+      batchSize: batchSize,
+      epochs,
       verbose: 1,
-      shuffle: true
-      // callbacks: fitCallbacks
+      shuffle: true,
+      callbacks
     })
   }
 }

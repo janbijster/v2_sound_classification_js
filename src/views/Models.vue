@@ -28,17 +28,44 @@
                 {{ selectedModel.created }}
               </div>
               <select-multiple
-                label="Labels"
+                :label="
+                  modelIsCreated ? 'Model created with labels' : 'Select labels'
+                "
                 :items="labelObjects"
                 :adjustable="!modelIsCreated"
                 :selected="selectedModel.labels"
                 class="select-labels"
                 @change="selectLabels"
               />
-              <div v-if="canCreateModel" class="btn" @click="createTfModel">
+              <div />
+              <div
+                v-if="canCreateModel"
+                class="btn mar-bottom-sm"
+                @click="createTfModel"
+              >
                 Create model
               </div>
-              <div v-if="modelIsCreated" class="model-info">Model created</div>
+              <div v-else-if="modelIsCreated" class="model-info">
+                <div class="msg">Model created.</div>
+                <div v-if="selectedModel.trained" class="msg">
+                  {{ selectedModel.epochsTrained }} epochs trained, acc:
+                  {{ selectedModel.acc }}, loss: {{ selectedModel.loss }}
+                </div>
+                <div class="btn mar-bottom-sm" @click="showTrainPopup = true">
+                  train
+                </div>
+                <train-model
+                  v-if="showTrainPopup && modelIsCreated"
+                  :model="selectedModel"
+                  @close="showTrainPopup = false"
+                />
+              </div>
+              <div
+                class="btn mar-bottom-sm"
+                @click="deleteModel(selectedModel)"
+              >
+                delete
+              </div>
             </template>
           </div>
         </template>
@@ -51,6 +78,7 @@
 import VerticalSplit from '@/components/VerticalSplit'
 import ItemList from '@/components/ItemList'
 import SelectMultiple from '@/components/SelectMultiple'
+import TrainModel from '@/components/TrainModel'
 import trainingUtils from '@/utils/trainingUtils'
 
 const nullLabelObject = { name: 'unlabeled', value: null }
@@ -60,16 +88,18 @@ export default {
   components: {
     VerticalSplit,
     ItemList,
-    SelectMultiple
+    SelectMultiple,
+    TrainModel
   },
   data() {
     return {
-      selectedLabels: []
+      selectedLabels: [],
+      showTrainPopup: false
     }
   },
   computed: {
     modelIsCreated() {
-      return this.selectedModel.hasTfModel
+      return this.selectedModel && this.selectedModel.hasTfModel
     },
     canCreateModel() {
       return (
@@ -162,5 +192,6 @@ export default {
 }
 .select-labels {
   margin-bottom: 0.5rem;
+  display: inline-block;
 }
 </style>
