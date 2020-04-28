@@ -68,15 +68,13 @@ export default {
     }
   },
   mounted() {
-    this.loadSound(this.sound)
-      .then(audioSource => {
-        this.audioSource = audioSource
-      })
-      .catch(err => console.log(err))
+    this.loadSound(this.sound).then(audioSource => {
+      this.audioSource = audioSource
+    })
   },
   methods: {
     preprocessSoundBtn() {
-      this.preprocessSound(this.audioSource, this.sound)
+      this.preprocessSound(this.audioSource, this.sound).catch(e => alert(e))
     },
     loadSound(sound) {
       return new Promise((resolve, reject) => {
@@ -99,8 +97,14 @@ export default {
           audioUtils
             .dataURIToAudioBuffer(audioSource)
             .then(audioBuffer => {
-              const completeSpectrogram = audioUtils.analyzeMfcc(audioBuffer)
-              const spectrograms = imageUtils.padAndCut(completeSpectrogram)
+              let completeSpectrogram, spectrograms
+              try {
+                completeSpectrogram = audioUtils.analyzeMfcc(audioBuffer)
+                spectrograms = imageUtils.padAndCut(completeSpectrogram)
+              } catch (e) {
+                alert(e)
+              }
+
               // save spectrograms on sound
               this.$set(sound, 'spectrograms', spectrograms)
               this.$store.dispatch('sounds/saveSounds')

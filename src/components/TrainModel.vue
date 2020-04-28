@@ -124,14 +124,14 @@ export default {
       this.output.push(
         'Start training. Model is saved after each iteration if the loss decreased, press quit to end training.'
       )
-      let lastLoss = 1
+      let minLoss = 1
       for (let i = 0; i < 1000; i++) {
         if (this.hasQuit) break
         const history = await trainingUtils.train(tfModel, trainData)
         const loss = history.history.loss[0]
         const acc = history.history.acc[0]
         this.output.push(`loss: ${loss}, acc: ${acc}`)
-        if (loss < lastLoss) {
+        if (loss < minLoss) {
           this.output.push(`loss decreased, saving...`)
           this.model.trained = true
           this.model.epochsTrained = this.model.epochsTrained
@@ -145,7 +145,7 @@ export default {
             tfModel
           })
         }
-        lastLoss = loss
+        minLoss = Math.min(minLoss, loss)
       }
       this.output.push('Training done.')
     },
