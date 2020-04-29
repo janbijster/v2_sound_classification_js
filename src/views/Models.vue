@@ -38,13 +38,17 @@
                 @change="selectLabels"
               />
               <div />
-              <div
-                v-if="canCreateModel"
-                class="btn mar-bottom-sm"
-                @click="createTfModel"
-              >
-                Create model
-              </div>
+              <template v-if="canCreateModel">
+                <div class="btn mar-bottom-sm" @click="createTfModel">
+                  Create model
+                </div>
+                <div
+                  class="btn mar-bottom-sm"
+                  @click="deleteModel(selectedModel)"
+                >
+                  delete
+                </div>
+              </template>
               <div v-else-if="modelIsCreated" class="model-info">
                 <div class="msg">Model created.</div>
                 <div v-if="selectedModel.trained" class="msg">
@@ -59,8 +63,29 @@
                   :model="selectedModel"
                   @close="showTrainPopup = false"
                 />
+                <div
+                  v-if="selectedModel.trained"
+                  class="btn mar-bottom-sm"
+                  @click="showPredictPopup = true"
+                >
+                  predict
+                </div>
+                <predict-model
+                  v-if="
+                    showPredictPopup && selectedModel && selectedModel.trained
+                  "
+                  :model="selectedModel"
+                  @close="showPredictPopup = false"
+                />
+                <div
+                  class="btn mar-bottom-sm"
+                  @click="deleteModel(selectedModel)"
+                >
+                  delete
+                </div>
               </div>
               <div
+                v-else
                 class="btn mar-bottom-sm"
                 @click="deleteModel(selectedModel)"
               >
@@ -79,6 +104,7 @@ import VerticalSplit from '@/components/VerticalSplit'
 import ItemList from '@/components/ItemList'
 import SelectMultiple from '@/components/SelectMultiple'
 import TrainModel from '@/components/TrainModel'
+import PredictModel from '@/components/PredictModel'
 import trainingUtils from '@/utils/trainingUtils'
 
 const nullLabelObject = { name: 'unlabeled', value: null }
@@ -89,12 +115,14 @@ export default {
     VerticalSplit,
     ItemList,
     SelectMultiple,
-    TrainModel
+    TrainModel,
+    PredictModel
   },
   data() {
     return {
       selectedLabels: [],
-      showTrainPopup: false
+      showTrainPopup: false,
+      showPredictPopup: false
     }
   },
   computed: {
@@ -157,6 +185,7 @@ export default {
       this.$store.commit('models/selectModel', model)
     },
     deleteModel(model) {
+      this.$store.commit('models/selectModel', null)
       this.$store.commit('models/deleteModel', model)
     },
     selectLabels(labels) {

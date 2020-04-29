@@ -1,4 +1,4 @@
-publicPath = {
+const publicPath = {
   production: '/v2_sound_classification_js/',
   development: '/'
 }

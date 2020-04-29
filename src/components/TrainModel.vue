@@ -150,7 +150,6 @@ export default {
       this.output.push('Training done.')
     },
     quit() {
-      // possibly interrupt training?
       this.hasQuit = true
       this.$emit('close')
     }
