@@ -24,6 +24,21 @@ export default {
     }
     return spectrogram
   },
+  fileToAudioBuffer(file, sampleRate = 22050) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = e => {
+        const arrayBuffer = e.target.result
+        const audioContext = new AudioContext({ sampleRate })
+        audioContext.decodeAudioData(
+          arrayBuffer,
+          audioBuffer => resolve(audioBuffer),
+          err => reject(err)
+        )
+      }
+      reader.readAsArrayBuffer(file)
+    })
+  },
   dataURIToAudioBuffer(dataURI, sampleRate = 22050) {
     return new Promise((resolve, reject) => {
       const blob = this.dataURItoBlob(dataURI)

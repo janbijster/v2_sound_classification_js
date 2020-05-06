@@ -8,7 +8,7 @@
         ref="input"
         type="file"
         accept="audio/*"
-        multiple
+        :multiple="multiple"
         @change="handleFile()"
       />
     </div>
@@ -21,6 +21,14 @@ export default {
     btnClass: {
       type: String,
       default: 'btn'
+    },
+    multiple: {
+      type: Boolean,
+      default: true
+    },
+    returnDataUrl: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -37,7 +45,11 @@ export default {
         if (!file.type.startsWith('audio/')) {
           console.log('not audio')
         } else {
-          this.loadSound(file)
+          if (this.returnDataUrl) {
+            this.loadSound(file)
+          } else {
+            this.$emit('sound', file)
+          }
         }
       })
     },

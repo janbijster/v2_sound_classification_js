@@ -2,16 +2,7 @@
   <div class="train-model popup">
     <div class="train-model-content">
       <div class="train-model-title b">train model {{ model.name }}</div>
-      <div ref="output" class="train-model-output-holder">
-        <div
-          v-for="(msg, index) in output"
-          :key="index"
-          class="train-model-output-msg mono"
-        >
-          {{ msg }}
-        </div>
-        <div class="train-model-output-end" />
-      </div>
+      <terminal class="train-model-output-holder" :output="output" />
       <div class="btn" @click="quit">quit</div>
     </div>
   </div>
@@ -19,8 +10,12 @@
 
 <script>
 import trainingUtils from '@/utils/trainingUtils'
+import Terminal from '@/components/Terminal'
 
 export default {
+  components: {
+    Terminal
+  },
   props: {
     model: {
       type: Object,
@@ -31,13 +26,6 @@ export default {
     return {
       output: [],
       hasQuit: false
-    }
-  },
-  computed: {},
-  watch: {
-    output() {
-      const outputHolderEl = this.$refs['output']
-      outputHolderEl.scrollTop = outputHolderEl.scrollHeight
     }
   },
   mounted() {
@@ -175,18 +163,7 @@ export default {
   margin-bottom: 0.5rem;
 }
 .train-model-output-holder {
-  text-align: left;
   height: calc(100% - 6rem);
   margin-bottom: 0.5rem;
-  overflow-y: scroll;
-  background: rgba(255, 255, 255, 0.5);
-  padding: 0.5rem;
-}
-.train-model-output-msg {
-  margin-bottom: 0.25rem;
-  color: $blue;
-}
-.train-model-output-end {
-  height: 2rem;
 }
 </style>

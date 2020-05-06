@@ -129,5 +129,38 @@ export default {
       shuffle: true,
       callbacks
     })
+  },
+  predictSpectrogram(tfModel, spectrogram) {
+    const X = tf
+      .tensor(spectrogram)
+      .reshape([1, spectrogram.length, spectrogram[0].length, 1])
+    const prediction = tfModel.predict(X)
+    return prediction.arraySync()[0]
+  },
+  scoresToLabelInfo(scores, labels) {
+    const maxIndex = scores.reduce(
+      (iMax, x, i, arr) => (x > arr[iMax] ? i : iMax),
+      0
+    )
+    return {
+      predictedLabel: labels[maxIndex],
+      predictedScore: scores[maxIndex],
+      scores: scores.map((score, i) => ({ label: labels[i], score }))
+    }
+  },
+  formatPercentage(num) {
+    return Math.round(num * 100)
+  },
+  formatLabelInfo(labelInfo) {
+    return (
+      `\nPredicted label: ${labelInfo.predictedLabel} (${this.formatPercentage(
+        labelInfo.predictedScore
+      )}%)\n\n` +
+      labelInfo.scores
+        .map(
+          ({ label, score }) => `${label}: ${this.formatPercentage(score)} %`
+        )
+        .join('\n')
+    )
   }
 }

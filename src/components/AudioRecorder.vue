@@ -119,8 +119,6 @@ export default {
       }
     },
     record() {
-      // polyfill for old browsers:
-
       // Request permissions to record audio
       navigator.mediaDevices
         .getUserMedia({ audio: true })
