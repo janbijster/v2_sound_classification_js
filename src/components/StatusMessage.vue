@@ -1,14 +1,19 @@
 <template>
   <div :class="['status-message', message ? '' : 'no-message']">
-    {{ message || 'all changes saved' }}
+    {{ message || standardMessage }}
   </div>
 </template>
 
 <script>
+const packageVersion = PACKAGE_VERSION // eslint-disable-line
+
 export default {
   computed: {
     message() {
       return this.$store.getters['sounds/getDiskActivity']
+    },
+    standardMessage() {
+      return `v${packageVersion} all changes saved`
     }
   }
 }
