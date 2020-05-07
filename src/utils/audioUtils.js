@@ -1,5 +1,4 @@
 import Meyda from 'meyda'
-import AudioContextPolyFill from 'audio-context-polyfill' // eslint-disable-line
 
 export default {
   getRecorder() {
