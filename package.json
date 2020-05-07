@@ -10,8 +10,6 @@
   },
   "dependencies": {
     "@tensorflow/tfjs": "^1.7.2",
-    "audio-context-polyfill": "^1.0.0",
-    "audio-recorder-polyfill": "^0.3.4",
     "core-js": "^3.6.4",
     "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-prettier": "^3.1.2",
