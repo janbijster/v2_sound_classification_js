@@ -45,7 +45,7 @@ export default {
       output: [],
       hasQuit: false,
       hasStopped: false,
-      modelReady: true,
+      modelReady: false,
       tfModel: null,
       recordingSupported: false,
       recording: false,
@@ -63,82 +63,35 @@ export default {
     this.$store
       .dispatch('models/loadTfModel', { model: this.model })
       .then(tfModel => {
-        // compile necessary? TODO build this in train and predict functions
-        // this.tfModel = trainingUtils.compile(tfModel)
         this.tfModel = tfModel
         this.output.push('Model ready.')
-        // this.output.push(...trainingUtils.getModelSummary(this.tfModel))
         this.modelReady = true
       })
       .catch(err => {
         this.output.push('Encountered an error, check the console.')
         console.log(err)
       })
-    // check recording support
-    this.recordingSupported = this.checkRecordingSupport()
-    if (!this.recordingSupported) {
-      this.output.push('Recording sound is not supported in this browser.')
-    } else {
-      this.getRecorder()
-    }
+    // get audio recorder if supported
+    audioUtils
+      .getRecorder()
+      .then(stream => {
+        this.recordingSupported = true
+        this.recorder = new MediaRecorder(stream)
+        // when stream is stopped:
+        this.recorder.addEventListener('dataavailable', this.processRecording)
+      })
+      .catch(e => {
+        this.recordingSupported = false
+        this.output.push(
+          `Recording sound is not supported in this browser or permission denied. (Error: ${e.message})`
+        )
+      })
   },
   methods: {
-    getRecorder() {
-      navigator.mediaDevices
-        .getUserMedia({ audio: true })
-        .then(stream => {
-          this.recorder = new MediaRecorder(stream)
-          // when stream is stopped:
-          this.recorder.addEventListener('dataavailable', e => {
-            this.output.push('stop recording.')
-            if (!this.hasQuit && !this.hasStopped) {
-              this.preprocessFile(e.data, true)
-            }
-          })
-        })
-        .catch(e => {
-          this.output.push(
-            'Permission denied for recording. Error: ' + e.message
-          )
-        })
-    },
-    checkRecordingSupport() {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        return true
-      } else {
-        if (!navigator.webkitGetUserMedia && !navigator.mozGetUserMedia) {
-          // no support
-          return false
-        }
-
-        // polyfill from https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
-        if (navigator.mediaDevices === undefined) {
-          navigator.mediaDevices = {}
-        }
-        // Some browsers partially implement mediaDevices. We can't just assign an object
-        // with getUserMedia as it would overwrite existing properties.
-        // Here, we will just add the getUserMedia property if it's missing.
-        if (navigator.mediaDevices.getUserMedia === undefined) {
-          navigator.mediaDevices.getUserMedia = constraints => {
-            // First get ahold of the legacy getUserMedia, if present
-            var getUserMedia =
-              navigator.webkitGetUserMedia || navigator.mozGetUserMedia
-
-            // Some browsers just don't implement it - return a rejected promise with an error
-            // to keep a consistent interface
-            if (!getUserMedia) {
-              return Promise.reject(
-                new Error('getUserMedia is not implemented in this browser')
-              )
-            }
-
-            // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
-            return new Promise(function(resolve, reject) {
-              getUserMedia.call(navigator, constraints, resolve, reject)
-            })
-          }
-        }
-        return true
+    processRecording(rec) {
+      this.output.push('stop recording.')
+      if (!this.hasQuit && !this.hasStopped) {
+        this.preprocessFile(rec.data, true)
       }
     },
     sleep(ms) {
@@ -211,6 +164,7 @@ export default {
       this.output.push(trainingUtils.formatLabelInfo(prediction))
     },
     quit() {
+      this.stopRecording()
       this.hasQuit = true
       this.$emit('close')
     }

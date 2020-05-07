@@ -2,6 +2,30 @@ import Meyda from 'meyda'
 import AudioContextPolyFill from 'audio-context-polyfill' // eslint-disable-line
 
 export default {
+  getRecorder() {
+    const constraints = { audio: true }
+    return new Promise((resolve, reject) => {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        // getUserMedia is supported normally
+        navigator.mediaDevices
+          .getUserMedia(constraints)
+          .then(stream => resolve(stream))
+          .catch(e => reject(e))
+      } else {
+        // polyfill adapted from https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+        if (!navigator.webkitGetUserMedia && !navigator.mozGetUserMedia) {
+          // no support
+          reject(
+            new Error('navigator.mediaDevices.getUserMedia is not supported.')
+          )
+        } else {
+          const getUserMedia =
+            navigator.webkitGetUserMedia || navigator.mozGetUserMedia
+          getUserMedia.call(navigator, constraints, resolve, reject)
+        }
+      }
+    })
+  },
   analyzeMfcc(
     buffer,
     hopSize = 512,

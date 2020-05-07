@@ -4,15 +4,13 @@
       <div class="audio-recorder-title b">record audio</div>
       <template v-if="!supported">
         <div class="audio-recordr-msg">
-          Audio recording is not supported in this browser. Please try a
+          Audio recording is not supported in this browser or permission is
+          denied. Make sure you allow access to the microphone or try a
           different browser.
         </div>
         <div class="btn" @click="quit">close</div>
       </template>
       <template v-else>
-        <div v-if="permissionDenied" class="audio-recordr-msg">
-          Please allow access to the microphone to record audio.
-        </div>
         <div class="audio-recorder-rec-btns">
           <div v-if="!recording" class="btn" @click="record">record</div>
           <div v-else class="btn" @click="stop">stop</div>
@@ -47,10 +45,8 @@
 </template>
 
 <script>
-import AudioRecorder from 'audio-recorder-polyfill'
-if (window.MediaRecorder == null) {
-  window.MediaRecorder = AudioRecorder
-}
+import audioUtils from '@/utils/audioUtils'
+import moment from 'moment'
 
 const convertTimeHHMMSS = val => {
   let hhmmss = new Date(val * 1000).toISOString().substr(11, 8)
@@ -62,9 +58,7 @@ export default {
     return {
       recorder: null,
       supported: false,
-      permissionDenied: false,
       recording: false,
-      lastRecording: null,
       lastRecordingSound: null,
       tickIntervalId: null,
       timePassed: 0
@@ -76,90 +70,50 @@ export default {
     }
   },
   mounted() {
-    this.supported = this.checkSupport()
+    // get audio recorder if supported
+    audioUtils
+      .getRecorder()
+      .then(stream => {
+        this.supported = true
+        this.recorder = new MediaRecorder(stream)
+        // when stream is stopped:
+        this.recorder.addEventListener('dataavailable', this.processRecording)
+      })
+      .catch(e => {
+        this.supported = false
+        alert(e)
+      })
   },
   methods: {
-    checkSupport() {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        return true
-      } else {
-        if (!navigator.webkitGetUserMedia && !navigator.mozGetUserMedia) {
-          // no support
-          return false
+    processRecording(recEvent) {
+      this.recording = false
+      window.clearInterval(this.tickIntervalId)
+      // convert to dataUrl
+      const reader = new FileReader()
+      reader.onload = e => {
+        console.log('done encoding.')
+        this.lastRecordingSound = {
+          name: 'recording ' + moment().format('YYYY-MM-DD HH:mm:ss'),
+          type: recEvent.data.type,
+          file: e.target.result
         }
-
-        // polyfill from https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
-        if (navigator.mediaDevices === undefined) {
-          navigator.mediaDevices = {}
-        }
-        // Some browsers partially implement mediaDevices. We can't just assign an object
-        // with getUserMedia as it would overwrite existing properties.
-        // Here, we will just add the getUserMedia property if it's missing.
-        if (navigator.mediaDevices.getUserMedia === undefined) {
-          navigator.mediaDevices.getUserMedia = constraints => {
-            // First get ahold of the legacy getUserMedia, if present
-            var getUserMedia =
-              navigator.webkitGetUserMedia || navigator.mozGetUserMedia
-
-            // Some browsers just don't implement it - return a rejected promise with an error
-            // to keep a consistent interface
-            if (!getUserMedia) {
-              return Promise.reject(
-                new Error('getUserMedia is not implemented in this browser')
-              )
-            }
-
-            // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
-            return new Promise(function(resolve, reject) {
-              getUserMedia.call(navigator, constraints, resolve, reject)
-            })
-          }
-        }
-        return true
       }
+      console.log('start encoding...')
+      reader.readAsDataURL(recEvent.data)
     },
     record() {
-      // Request permissions to record audio
-      navigator.mediaDevices
-        .getUserMedia({ audio: true })
-        .then(stream => {
-          this.permissionDenied = false
-          this.recording = true
-          this.timePassed = 0
-          this.tickIntervalId = window.setInterval(this.tick, 1000)
-          this.recorder = new MediaRecorder(stream)
-          // when stream is stopped:
-          this.recorder.addEventListener('dataavailable', e => {
-            this.lastRecording = e.data
-            this.recording = false
-            window.clearInterval(this.tickIntervalId)
-            // convert to dataUrl
-            const reader = new FileReader()
-            reader.onload = e => {
-              console.log('done encoding.')
-              this.lastRecordingSound = {
-                name: this.lastRecording.name || 'recording',
-                type: this.lastRecording.type,
-                file: e.target.result
-              }
-            }
-            console.log('start encoding...')
-            reader.readAsDataURL(this.lastRecording)
-          })
-
-          console.log('start recording...')
-          this.recorder.start()
-        })
-        .catch(e => {
-          this.permissionDenied = true
-          alert(e)
-        })
+      this.recording = true
+      this.lastRecordingSound = null
+      this.timePassed = 0
+      this.tickIntervalId = window.setInterval(this.tick, 1000)
+      console.log('start recording...')
+      this.recorder.start()
     },
     stop() {
       console.log('stop recording.')
-      this.recorder.stop()
-      // Remove “recording” icon from browser tab
-      this.recorder.stream.getTracks().forEach(i => i.stop())
+      if (this.recorder.state == 'recording') {
+        this.recorder.stop()
+      }
     },
     tick() {
       this.timePassed++
@@ -173,7 +127,6 @@ export default {
       this.quit()
     },
     newRecording() {
-      this.lastRecording = null
       this.lastRecordingSound = null
     },
     saveRecording() {
@@ -183,6 +136,13 @@ export default {
       this.$emit('sound', this.lastRecordingSound)
     },
     quit() {
+      if (this.recorder) {
+        if (this.recorder.state == 'recording') {
+          this.recorder.stop()
+        }
+        // Remove “recording” icon from browser tab
+        this.recorder.stream.getTracks().forEach(i => i.stop())
+      }
       this.$emit('close')
     }
   }
