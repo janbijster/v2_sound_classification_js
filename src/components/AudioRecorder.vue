@@ -46,6 +46,7 @@
 
 <script>
 import audioUtils from '@/utils/audioUtils'
+import AudioRecorder from 'audio-recorder-polyfill'
 import moment from 'moment'
 
 const convertTimeHHMMSS = val => {
@@ -75,7 +76,7 @@ export default {
       .getRecorder()
       .then(stream => {
         this.supported = true
-        this.recorder = new MediaRecorder(stream)
+        this.recorder = new AudioRecorder(stream)
         // when stream is stopped:
         this.recorder.addEventListener('dataavailable', this.processRecording)
       })

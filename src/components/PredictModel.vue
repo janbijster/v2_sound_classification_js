@@ -28,6 +28,7 @@ import audioUtils from '@/utils/audioUtils'
 import imageUtils from '@/utils/imageUtils'
 import Terminal from '@/components/Terminal'
 import trainingUtils from '@/utils/trainingUtils'
+import AudioRecorder from 'audio-recorder-polyfill'
 
 export default {
   components: {
@@ -76,7 +77,7 @@ export default {
       .getRecorder()
       .then(stream => {
         this.recordingSupported = true
-        this.recorder = new MediaRecorder(stream)
+        this.recorder = new AudioRecorder(stream)
         // when stream is stopped:
         this.recorder.addEventListener('dataavailable', this.processRecording)
       })
