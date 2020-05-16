@@ -57,13 +57,16 @@
             <span class="sound-property-label"
               >{{ selectedSound.spectrograms.length }} spectrograms
             </span>
+            <div class="btn btn-sm" @click="$router.push(`/preprocess`)">
+              show
+            </div>
           </template>
           <template v-else>
             <span class="sound-property-label">Not preprocessed </span>
+            <div class="btn btn-sm" @click="$router.push(`/preprocess`)">
+              preprocess
+            </div>
           </template>
-          <div class="btn btn-sm" @click="$router.push(`/preprocess`)">
-            preprocess
-          </div>
         </div>
       </div>
     </div>

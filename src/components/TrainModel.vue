@@ -2,6 +2,13 @@
   <div class="train-model popup">
     <div class="train-model-content">
       <div class="train-model-title b">train model {{ model.name }}</div>
+      <div class="msg">
+        Model will keep training indefinitely, saving after each epoch if the
+        loss decreased.
+      </div>
+      <div class="msg">
+        Click quit to stop training.
+      </div>
       <terminal class="train-model-output-holder" :output="output" />
       <div class="btn" @click="quit">quit</div>
     </div>
@@ -112,8 +119,8 @@ export default {
       this.output.push(
         'Start training. Model is saved after each iteration if the loss decreased, press quit to end training.'
       )
-      let minLoss = 1
-      for (let i = 0; i < 1000; i++) {
+      let minLoss = this.model.loss || 1e6
+      while (true) {
         if (this.hasQuit) break
         const history = await trainingUtils.train(tfModel, trainData)
         const loss = history.history.loss[0]
@@ -163,7 +170,7 @@ export default {
   margin-bottom: 0.5rem;
 }
 .train-model-output-holder {
-  height: calc(100% - 6rem);
+  height: calc(100% - 8rem);
   margin-bottom: 0.5rem;
 }
 </style>

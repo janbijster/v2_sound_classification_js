@@ -7,7 +7,7 @@ import Models from '@/views/Models'
 Vue.use(VueRouter)
 
 const routes = [
-  { path: '/', redirect: '/sounds' },
+  { path: '/', redirect: '/about' },
   {
     path: '/sounds',
     name: 'Sounds',

@@ -3,6 +3,7 @@
     <div class="btn btn-sm" @click="displayRecorder = true">record</div>
     <audio-recorder
       v-if="displayRecorder"
+      :selected-label="selectedLabel"
       @close="displayRecorder = false"
       @sound="getSound"
     />
@@ -15,6 +16,12 @@ import AudioRecorder from '@/components/AudioRecorder'
 export default {
   components: {
     AudioRecorder
+  },
+  props: {
+    selectedLabel: {
+      type: String,
+      default: null
+    }
   },
   data() {
     return {

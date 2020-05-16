@@ -1,20 +1,14 @@
 <template>
   <div class="preprocess-view">
-    <div class="view-title h4">Preprocess</div>
+    <top-tabs />
     <div class="box text-center">
       <div class="btn" @click="preprocessAll">preprocess all</div>
     </div>
     <template v-if="batchOutput && batchOutput.length > 0">
-      <div class="preprocess-output box">
-        <div
-          v-for="(msg, index) in batchOutput"
-          :key="index"
-          class="preprocess-output-msg"
-        >
-          {{ msg }}
-        </div>
+      <div class="preprocess-output-holder box">
+        <terminal class="preprocess-output" :output="batchOutput" />
+        <div class="btn" @click="stopPreprocessAll">stop</div>
       </div>
-      <div class="btn" @click="batchOutput = []">close</div>
     </template>
     <template v-else>
       <preprocess-item class="preprocess-item" :sound="sound" />
@@ -26,14 +20,19 @@
 import audioUtils from '@/utils/audioUtils'
 import imageUtils from '@/utils/imageUtils'
 import PreprocessItem from '@/components/PreprocessItem'
+import Terminal from '@/components/Terminal'
+import TopTabs from '@/components/TopTabs.vue'
 
 export default {
   components: {
-    PreprocessItem
+    PreprocessItem,
+    Terminal,
+    TopTabs
   },
   data() {
     return {
-      batchOutput: []
+      batchOutput: [],
+      preprocessAllStopped: false
     }
   },
   computed: {
@@ -42,14 +41,21 @@ export default {
     }
   },
   methods: {
-    preprocessAll() {
+    sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms))
+    },
+    async preprocessAll() {
+      this.preprocessAllStopped = false
       this.batchOutput = ['Preprocessing all unpreprocessed sounds...\n\n']
       const allSounds = this.$store.getters['sounds/getAllSounds']
-      allSounds.forEach((sound, i) => {
+      for (let i = 0; i < allSounds.length; i++) {
+        let sound = allSounds[i]
         if (sound.spectrograms && sound.spectrograms.length > 0) {
           this.batchOutput.push(
             `(${i}/${allSounds.length}) ${sound.name} - already processed, ${sound.spectrograms.length} spectrograms.`
           )
+          // short pause to allow the DOM to update. Otherwise everything wil just freeze
+          await this.sleep(50)
         } else {
           this.loadSound(sound).then(audioSource => {
             this.preprocessSound(audioSource, sound).then(spectrograms => {
@@ -58,8 +64,14 @@ export default {
               )
             })
           })
+          // short pause to allow the DOM to update. Otherwise everything wil just freeze
+          await this.sleep(200)
         }
-      })
+        if (this.preprocessAllStopped) {
+          break
+        }
+      }
+      allSounds.forEach((sound, i) => {})
     },
     loadSound(sound) {
       return new Promise((resolve, reject) => {
@@ -84,6 +96,9 @@ export default {
             .then(audioBuffer => {
               const completeSpectrogram = audioUtils.analyzeMfcc(audioBuffer)
               const spectrograms = imageUtils.padAndCut(completeSpectrogram)
+              if (spectrograms.length == 0) {
+                console.log(completeSpectrogram)
+              }
               // save spectrograms on sound
               this.$set(sound, 'spectrograms', spectrograms)
               this.$store.dispatch('sounds/saveSounds')
@@ -92,6 +107,10 @@ export default {
             .catch(err => reject(err))
         }
       })
+    },
+    stopPreprocessAll() {
+      this.preprocessAllStopped = true
+      this.batchOutput = []
     }
   }
 }
@@ -100,5 +119,12 @@ export default {
 <style>
 .preprocess-item {
   height: calc(100% - 7rem);
+}
+.preprocess-output-holder {
+  height: calc(100% - 7rem);
+}
+.preprocess-output {
+  height: calc(100% - 3rem);
+  margin-bottom: 0.5rem;
 }
 </style>

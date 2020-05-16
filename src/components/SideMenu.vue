@@ -1,9 +1,16 @@
 <template>
-  <div class="side-menu color-off-white">
+  <div
+    :class="['side-menu color-off-white', collapsed ? 'collapsed' : 'showing']"
+  >
     <div class="side-menu-button" @click="collapsed = !collapsed">
       <menu-icon v-if="collapsed" class="menu-icon" />
       <close-icon v-if="!collapsed" class="close-icon" />
     </div>
+    <div
+      v-show="!collapsed"
+      class="side-menu-catch-clicks"
+      @click="collapsed = true"
+    />
     <div class="side-menu-window theme-blue" :style="windowStyle">
       <div class="side-menu-header view-title h4">
         Sound classification js
@@ -95,14 +102,25 @@ export default {
   right: 0;
   bottom: 0;
   z-index: 100;
+}
+.side-menu.collapsed {
   pointer-events: none;
+}
+
+.side-menu-catch-clicks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 98;
 }
 
 .side-menu-button {
   position: absolute;
   z-index: 101;
   left: calc(1rem - 2px);
-  top: 1rem;
+  top: calc(1.5rem - 8px);
   transition: opacity 0.2s ease;
   pointer-events: auto;
 }
@@ -118,6 +136,7 @@ export default {
   padding: 1rem;
   transition: left 0.15s ease, right 0.15s ease;
   pointer-events: auto;
+  z-index: 99;
 }
 .side-menu-header {
   margin-bottom: 1rem;
@@ -130,6 +149,7 @@ export default {
   margin-left: 28px;
   display: block;
   margin-bottom: 1rem;
+  cursor: pointer;
 }
 .side-menu-separator {
   height: 2rem;

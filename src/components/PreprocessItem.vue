@@ -68,9 +68,11 @@ export default {
     }
   },
   mounted() {
-    this.loadSound(this.sound).then(audioSource => {
-      this.audioSource = audioSource
-    })
+    this.loadSound(this.sound)
+      .then(audioSource => {
+        this.audioSource = audioSource
+      })
+      .catch(e => console.log(e))
   },
   methods: {
     preprocessSoundBtn() {

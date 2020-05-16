@@ -2,8 +2,14 @@
   <div class="audio-recorder popup">
     <div class="audio-recorder-content">
       <div class="audio-recorder-title b">record audio</div>
+      <div class="audio-recorder-msg">
+        for label: {{ selectedLabel || 'unlabeled' }}
+      </div>
       <template v-if="!supported">
-        <div class="audio-recordr-msg">
+        <div v-if="stillWaiting" class="audio-recordr-msg">
+          Waiting for audio recording permission...
+        </div>
+        <div v-else class="audio-recordr-msg">
           Audio recording is not supported in this browser or permission is
           denied. Make sure you allow access to the microphone or try a
           different browser.
@@ -24,7 +30,7 @@
         >
           <audio controls :src="lastRecordingSound.file"></audio>
           <div class="btn" @click="saveAndNew">save &amp; new</div>
-          <div class="btn" @click="saveAndQuit">save &amp; quit</div>
+          <div class="btn" @click="saveAndQuit">save &amp; close</div>
         </div>
         <div v-if="!recording" class="audio-recorder-quit-btns">
           <div
@@ -35,7 +41,7 @@
             discard &amp; new
           </div>
           <div v-if="lastRecordingSound" class="btn btn-sm" @click="quit">
-            discard &amp; quit
+            discard &amp; close
           </div>
           <div v-else class="btn" @click="quit">quit</div>
         </div>
@@ -55,10 +61,17 @@ const convertTimeHHMMSS = val => {
 }
 
 export default {
+  props: {
+    selectedLabel: {
+      type: String,
+      default: null
+    }
+  },
   data() {
     return {
       recorder: null,
       supported: false,
+      stillWaiting: true,
       recording: false,
       lastRecordingSound: null,
       tickIntervalId: null,
@@ -82,6 +95,7 @@ export default {
       })
       .catch(e => {
         this.supported = false
+        this.stillWaiting = false
         alert(e)
       })
   },
@@ -162,7 +176,7 @@ export default {
 .audio-recorder-title {
   margin-bottom: 0.5rem;
 }
-.audio-recordr-msg,
+.audio-recorder-msg,
 .audio-recorder-time,
 .audio-recorder-rec-btns,
 .audio-recorder-new-btns {

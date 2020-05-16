@@ -1,6 +1,6 @@
 <template>
   <div class="sounds">
-    <div class="view-title h4">Sounds</div>
+    <top-tabs />
     <div class="vertical-split-holder">
       <vertical-split :fraction="0.6">
         <template v-slot:top>
@@ -18,13 +18,15 @@
 import VerticalSplit from '@/components/VerticalSplit'
 import Browser from '@/components/Browser'
 import SoundInspector from '@/components/SoundInspector'
+import TopTabs from '@/components/TopTabs.vue'
 
 export default {
   name: 'Sounds',
   components: {
     VerticalSplit,
     Browser,
-    SoundInspector
+    SoundInspector,
+    TopTabs
   }
 }
 </script>

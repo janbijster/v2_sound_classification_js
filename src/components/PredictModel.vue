@@ -22,7 +22,6 @@
 </template>
 
 <script>
-// TODO this code is a little spaghetti and not very DRY.
 import UploadSoundButton from '@/components/UploadSoundButton'
 import audioUtils from '@/utils/audioUtils'
 import imageUtils from '@/utils/imageUtils'
@@ -139,6 +138,7 @@ export default {
           try {
             completeSpectrogram = audioUtils.analyzeMfcc(audioBuffer)
             spectrograms = imageUtils.padAndCut(completeSpectrogram)
+            console.log(spectrograms)
             this.output.push(`Got ${spectrograms.length} spectrograms`)
           } catch (e) {
             this.output.push(`Error ceating spectrograms: ${e.message}`)

@@ -3,14 +3,20 @@ export default {
     const totalLength = spectrogram.length
     const overlapLength = Math.round(overlapFraction * length)
     const hopSize = length - overlapLength
-    const numCuts = Math.ceil((totalLength - overlapLength) / hopSize)
+    const numCuts = Math.max(
+      1,
+      Math.ceil((totalLength - overlapLength) / hopSize)
+    )
     const spectrograms = []
     for (let i = 0; i < numCuts; i++) {
       const start = i * hopSize
       const end = start + length
       let slicedSpectrogram = spectrogram.slice(start, end)
-      if (end > totalLength) {
-        const padLength = end - totalLength
+      // if the cut is not long enough, pad by repeating the sample from the start
+      // if the sample is much smaller than the required length, we may even need to
+      // this multiple times
+      while (slicedSpectrogram.length < length) {
+        const padLength = length - slicedSpectrogram.length
         slicedSpectrogram = [
           ...slicedSpectrogram,
           ...spectrogram.slice(0, padLength)

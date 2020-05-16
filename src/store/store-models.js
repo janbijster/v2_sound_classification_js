@@ -27,15 +27,6 @@ export default {
       state.selectedModel = newModel
       DiskIO.saveToDisk('models', state.models)
     },
-    deleteModel(state, model) {
-      if (window.confirm(`Delete model ${model.name}?`)) {
-        if (model.hasTfModel) {
-          DiskIO.clearTfModel(model)
-        }
-        state.models = state.models.filter(oldModel => oldModel != model)
-        DiskIO.saveToDisk('models', state.models)
-      }
-    },
     selectModel(state, model) {
       state.selectedModel = model
     },
@@ -56,6 +47,16 @@ export default {
           .then(tfModel => resolve(tfModel))
           .catch(err => reject(err))
       })
+    },
+    deleteModel({ state, commit }, model) {
+      if (window.confirm(`Delete model ${model.name}?`)) {
+        commit('selectModel', null)
+        if (model.hasTfModel) {
+          DiskIO.clearTfModel(model)
+        }
+        state.models = state.models.filter(oldModel => oldModel != model)
+        DiskIO.saveToDisk('models', state.models)
+      }
     },
     loadAll({ state }) {
       console.log('loading models...')

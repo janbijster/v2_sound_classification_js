@@ -2,11 +2,11 @@
   <div class="browser text-left">
     <div class="browser-labels">
       <div class="browser-content">
-        <div class="browser-title b">labels</div>
+        <div class="browser-title b">labels ({{ labelObjects.length }})</div>
         <item-list
           :items="labelObjects"
           :selected-item="labelObjectByValue(selectedLabel)"
-          @select="labelObject => (selectedLabel = labelObject.value)"
+          @select="selectLabel"
           @delete="labelObject => deleteLabel(labelObject.value)"
         />
       </div>
@@ -16,7 +16,10 @@
     </div>
     <div class="browser-sounds">
       <div class="browser-content">
-        <div class="browser-title b">sounds</div>
+        <div class="browser-title b">
+          {{ selectedLabel || 'unlabeled' }} sounds ({{ sounds.length }} of
+          {{ allSounds.length }} total)
+        </div>
         <item-list
           :items="sounds"
           :selected-item="selectedSound"
@@ -26,7 +29,11 @@
       </div>
       <div class="browser-bottom-btns">
         <upload-sound-button btn-class="btn btn-sm" @sound="uploadSound" />
-        <record-audio-button btn-class="btn btn-sm" @sound="uploadSound" />
+        <record-audio-button
+          btn-class="btn btn-sm"
+          :selected-label="selectedLabel"
+          @sound="uploadSound"
+        />
       </div>
     </div>
   </div>
@@ -37,8 +44,6 @@ import UploadSoundButton from '@/components/UploadSoundButton'
 import RecordAudioButton from '@/components/RecordAudioButton'
 import ItemList from '@/components/ItemList'
 
-const nullLabelObject = { name: 'unlabeled', value: null }
-
 export default {
   components: {
     UploadSoundButton,
@@ -47,21 +52,28 @@ export default {
   },
   data() {
     return {
-      selectedLabel: nullLabelObject.value
+      selectedLabel: null,
+      nullLabelObject: {
+        name: `unlabeled (${this.soundsByLabel(null).length})`,
+        value: null
+      }
     }
   },
   computed: {
     labelObjects() {
       return [
-        nullLabelObject,
+        this.nullLabelObject,
         ...this.$store.getters['sounds/getLabels'].map(label => ({
-          name: label,
+          name: `${label} (${this.soundsByLabel(label).length})`,
           value: label
         }))
       ]
     },
     sounds() {
       return this.soundsByLabel(this.selectedLabel)
+    },
+    allSounds() {
+      return this.$store.getters['sounds/getAllSounds']
     },
     selectedSound() {
       return this.$store.getters['sounds/getSelectedSound']
@@ -77,10 +89,14 @@ export default {
       this.$store.commit('sounds/deleteLabel', label)
       this.selectedLabel = null
     },
+    selectLabel(labelObject) {
+      this.selectedLabel = labelObject.value
+      this.selectSound(null)
+    },
     labelObjectByValue(label) {
       return (
         this.labelObjects.find(labelObject => labelObject.value == label) ||
-        nullLabelObject
+        this.nullLabelObject
       )
     },
     uploadSound(sound) {

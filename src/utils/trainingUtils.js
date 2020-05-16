@@ -116,7 +116,7 @@ export default {
     const trainX = tf
       .tensor3d(X)
       .reshape([trainSize, imageWidth, imageHeight, numChannels])
-    console.log(tf.tensor1d(Y, 'int32'))
+    // console.log(tf.tensor1d(Y, 'int32'))
     const trainY = tf.oneHot(tf.tensor1d(Y, 'int32'), numClasses)
 
     return { trainX, trainY }

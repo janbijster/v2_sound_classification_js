@@ -11,11 +11,21 @@ export default {
     output: {
       type: Array,
       default: () => []
+    },
+    maxLines: {
+      type: Number,
+      default: 100
     }
   },
   computed: {
+    startIndex() {
+      return Math.max(0, this.output.length - this.maxLines)
+    },
+    endIndex() {
+      return Math.min(this.startIndex + this.maxLines, this.output.length)
+    },
     outputString() {
-      return this.output.join('\n')
+      return this.output.slice(this.startIndex, this.endIndex).join('\n')
     }
   },
   watch: {

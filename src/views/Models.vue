@@ -1,6 +1,6 @@
 <template>
   <div class="models">
-    <div class="view-title h4">Models</div>
+    <top-tabs />
     <div class="vertical-split-holder">
       <vertical-split :fraction="0.4">
         <template v-slot:top>
@@ -29,7 +29,9 @@
               </div>
               <select-multiple
                 :label="
-                  modelIsCreated ? 'Model created with labels' : 'Select labels'
+                  modelIsCreated
+                    ? 'Model created with labels'
+                    : 'Select at least 2 labels'
                 "
                 :items="labelObjects"
                 :adjustable="!modelIsCreated"
@@ -51,6 +53,15 @@
               </template>
               <div v-else-if="modelIsCreated" class="model-info">
                 <div class="msg">Model created.</div>
+                <template v-if="selectedModelHasUnprocessedSounds">
+                  <div class="msg">
+                    Warning: labels contain unprocessed sounds.
+                  </div>
+                  <div class="btn" @click="$router.push('preprocess')">
+                    preprocess
+                  </div>
+                  <div class="msg" />
+                </template>
                 <div v-if="selectedModel.trained" class="msg">
                   {{ selectedModel.epochsTrained }} epochs trained, acc:
                   {{ selectedModel.acc }}, loss: {{ selectedModel.loss }}
@@ -106,6 +117,7 @@ import SelectMultiple from '@/components/SelectMultiple'
 import TrainModel from '@/components/TrainModel'
 import PredictModel from '@/components/PredictModel'
 import trainingUtils from '@/utils/trainingUtils'
+import TopTabs from '@/components/TopTabs.vue'
 
 const nullLabelObject = { name: 'unlabeled', value: null }
 
@@ -116,7 +128,8 @@ export default {
     ItemList,
     SelectMultiple,
     TrainModel,
-    PredictModel
+    PredictModel,
+    TopTabs
   },
   data() {
     return {
@@ -147,6 +160,20 @@ export default {
         nullLabelObject,
         ...this.labelsToObjects(this.$store.getters['sounds/getLabels'])
       ]
+    },
+    selectedModelHasUnprocessedSounds() {
+      if (!this.modelIsCreated && !this.canCreateModel) {
+        return false
+      }
+      let hasUnprocessedSounds = false
+      this.selectedModel.labels.forEach(label => {
+        this.$store.getters['sounds/getSoundsByLabel'](label).forEach(sound => {
+          if (!sound.spectrograms || sound.spectrograms.length == 0) {
+            hasUnprocessedSounds = true
+          }
+        })
+      })
+      return hasUnprocessedSounds
     }
   },
   methods: {
@@ -185,8 +212,7 @@ export default {
       this.$store.commit('models/selectModel', model)
     },
     deleteModel(model) {
-      this.$store.commit('models/selectModel', null)
-      this.$store.commit('models/deleteModel', model)
+      this.$store.dispatch('models/deleteModel', model)
     },
     selectLabels(labels) {
       this.selectedLabels = labels
@@ -201,6 +227,7 @@ export default {
 }
 .models .box {
   margin: 0;
+  overflow-y: scroll;
 }
 .vertical-split-holder {
   margin-top: 1rem;
