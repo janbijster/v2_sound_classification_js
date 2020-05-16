@@ -52,6 +52,7 @@ export default {
       const reader = new FileReader()
       reader.onload = e => {
         const arrayBuffer = e.target.result
+        const AudioContext = window.AudioContext || window.webkitAudioContext
         const audioContext = new AudioContext({ sampleRate })
         audioContext.decodeAudioData(
           arrayBuffer,
@@ -68,6 +69,7 @@ export default {
       const reader = new FileReader()
       reader.onload = e => {
         const arrayBuffer = e.target.result
+        const AudioContext = window.AudioContext || window.webkitAudioContext
         const audioContext = new AudioContext({ sampleRate })
         audioContext.decodeAudioData(
           arrayBuffer,

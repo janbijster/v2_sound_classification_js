@@ -6,11 +6,11 @@
       <router-link to="/sounds">sounds</router-link> window to preprocess
     </template>
     <template v-else>
-      <template v-if="!audioSource">
+      <template v-if="!audioSource && !noSoundFile">
         loading sound...
       </template>
       <template v-else>
-        <div class="audio-preview">
+        <div v-if="audioSource" class="audio-preview">
           <div clas="preprocess-item-sound-name">
             {{ sound.name }}
           </div>
@@ -20,7 +20,12 @@
           <audio ref="audio" controls preload="auto" :src="audioSource"></audio>
         </div>
         <!-- spectrograms: -->
-        <template v-if="!sound.spectrograms || sound.spectrograms.length == 0">
+        <template
+          v-if="
+            !noSoundFile &&
+              (!sound.spectrograms || sound.spectrograms.length == 0)
+          "
+        >
           <div class="btn" @click="preprocessSoundBtn">preprocess</div>
         </template>
         <template v-else>
@@ -37,7 +42,9 @@
               :src="spectrogramImage(spectrogram)"
             />
           </div>
-          <div class="btn" @click="preprocessSoundBtn">preprocess again</div>
+          <div v-if="!noSoundFile" class="btn" @click="preprocessSoundBtn">
+            preprocess again
+          </div>
         </template>
         <!-- end spectrograms -->
       </template>
@@ -59,6 +66,7 @@ export default {
   data() {
     return {
       audioSource: null,
+      noSoundFile: false,
       spectrograms: []
     }
   },
@@ -84,9 +92,13 @@ export default {
         if (sound == null) {
           reject(new Error('no sound selected'))
         } else {
-          this.$store
-            .dispatch('sounds/loadSoundFile', sound)
-            .then(audioSource => resolve(audioSource))
+          if (sound.noSoundFile) {
+            this.noSoundFile = true
+          } else {
+            this.$store
+              .dispatch('sounds/loadSoundFile', sound)
+              .then(audioSource => resolve(audioSource))
+          }
         }
       })
     },

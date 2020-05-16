@@ -1,22 +1,19 @@
 <template>
-  <div class="upload-sound-component">
-    <div class="upload-btn-wrapper">
-      <div :class="btnClass" @click="clickFileUpload">
-        upload
-      </div>
-      <input
-        ref="input"
-        type="file"
-        accept="audio/*"
-        :multiple="multiple"
-        @change="handleFile()"
-      />
-    </div>
-  </div>
+  <upload-file-button
+    :multiple="multiple"
+    :btn-class="btnClass"
+    accept="audio/*"
+    @files="handleFiles"
+  />
 </template>
 
 <script>
+import UploadFileButton from '@/components/UploadFileButton'
+
 export default {
+  components: {
+    UploadFileButton
+  },
   props: {
     btnClass: {
       type: String,
@@ -31,16 +28,9 @@ export default {
       default: true
     }
   },
-  data() {
-    return {}
-  },
   methods: {
-    handleFile() {
-      const inputElement = this.$refs['input']
-      if (inputElement.files == null || inputElement.files.length < 1) {
-        return
-      }
-      inputElement.files.forEach(file => {
+    handleFiles(files) {
+      files.forEach(file => {
         console.log('got file: ', file)
         if (!file.type.startsWith('audio/')) {
           console.log('not audio')
@@ -63,46 +53,7 @@ export default {
         })
       }
       reader.readAsDataURL(file)
-    },
-    clickFileUpload() {
-      const inputElement = this.$refs['input']
-      inputElement.click()
     }
   }
 }
 </script>
-
-<style scoped>
-.upload-sound-component {
-  display: inline-flex;
-}
-
-.upload-btn-wrapper {
-  position: relative;
-  overflow: hidden;
-  display: inline-block;
-}
-
-.btn-placeholder {
-  border: none;
-  color: white;
-  background-color: #ccc;
-  font-weight: bold;
-  position: relative;
-}
-
-.upload-btn-wrapper input[type='file'] {
-  font-size: 100px;
-  position: absolute;
-  left: 0;
-  top: 0;
-  opacity: 0;
-}
-
-.placeholder-icon {
-  position: absolute;
-  font-size: 40px;
-  left: calc(50% - 20px);
-  top: calc(50% - 20px);
-}
-</style>

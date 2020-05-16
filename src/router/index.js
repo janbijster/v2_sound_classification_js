@@ -3,6 +3,8 @@ import VueRouter from 'vue-router'
 import Sounds from '@/views/Sounds'
 import Preprocess from '@/views/Preprocess'
 import Models from '@/views/Models'
+import About from '@/views/About'
+import ImportExport from '@/views/ImportExport'
 
 Vue.use(VueRouter)
 
@@ -30,11 +32,13 @@ const routes = [
     path: '/about',
     name: 'About',
     showInMenu: true,
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */ '../views/About.vue')
+    component: About
+  },
+  {
+    path: '/import-export',
+    name: 'Import/Export',
+    showInMenu: true,
+    component: ImportExport
   }
 ]
 

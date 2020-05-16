@@ -31,7 +31,7 @@ export default {
         state.labels = [...state.labels, newLabel]
         DiskIO.saveToDisk('labels', state.labels)
       } else {
-        alert('Label already exists.')
+        console.log('Label already exists.')
       }
     },
     deleteLabel(state, label) {
@@ -94,6 +94,29 @@ export default {
           resolve(null)
         }
       })
+    },
+    importSounds(
+      { state, commit },
+      { sounds, logFunction = s => console.log(s) }
+    ) {
+      sounds.forEach(sound => {
+        let found = false
+        state.sounds.forEach(checkSound => {
+          found = found || checkSound.identifier == sound.identifier
+        })
+        if (found) {
+          logFunction(`Sound ${sound.name} already in store`)
+        } else {
+          logFunction(`Adding sound ${sound.name}...`)
+          // add a property on the sound indicating that the sound
+          // was imported and has no sound file
+          sound.noSoundFile = true
+          state.sounds.push(sound)
+          // add label in case it doesn't exist
+          commit('addLabel', sound.label)
+        }
+      })
+      DiskIO.saveToDisk('sounds', state.sounds)
     },
     loadAll({ state }) {
       console.log('loading sounds and labels...')

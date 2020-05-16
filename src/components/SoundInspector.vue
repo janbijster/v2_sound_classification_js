@@ -28,7 +28,12 @@
         </div>
       </div>
       <div class="sound-inspector-part right">
-        <template v-if="selectedSoundData">
+        <template v-if="noSoundFile">
+          <div class="sound-property-label sound-player-msg">
+            no sound file
+          </div>
+        </template>
+        <template v-else-if="selectedSoundData">
           <div class="sound-property-label">
             play
           </div>
@@ -83,6 +88,7 @@ export default {
   data() {
     return {
       selectedSoundData: null,
+      noSoundFile: false,
       useCustomAudioPlayer: false
     }
   },
@@ -98,13 +104,17 @@ export default {
     selectedSound(sound) {
       this.selectedSoundData = null
       if (sound != null) {
-        this.$store
-          .dispatch('sounds/loadSoundFile', sound)
-          .then(file => (this.selectedSoundData = file))
-          .catch(err => {
-            console.log(err)
-            this.selectedSoundData = null
-          })
+        if (sound.noSoundFile) {
+          this.noSoundFile = true
+        } else {
+          this.$store
+            .dispatch('sounds/loadSoundFile', sound)
+            .then(file => (this.selectedSoundData = file))
+            .catch(err => {
+              console.log(err)
+              this.selectedSoundData = null
+            })
+        }
       }
     }
   },
