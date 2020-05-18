@@ -17,11 +17,14 @@ export default {
     return this.hasIndexedDB ? 'indexeddb://' : 'localstorage://'
   },
   saveToDisk(key, value) {
-    Vue.set(this.diskActivity, 0, `saving ${key}...`)
-    console.log(this.diskActivity)
-    localforage
-      .setItem(key, value)
-      .then(() => Vue.set(this.diskActivity, 0, null))
+    return new Promise(resolve => {
+      Vue.set(this.diskActivity, 0, `saving ${key}...`)
+      console.log(this.diskActivity)
+      localforage.setItem(key, value).then(() => {
+        Vue.set(this.diskActivity, 0, null)
+        resolve()
+      })
+    })
   },
   removeFromDisk(key) {
     Vue.set(this.diskActivity, 0, `removing ${key}...`)

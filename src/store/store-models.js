@@ -69,7 +69,9 @@ export default {
         .catch(err => console.log(err))
     },
     saveModels({ state }) {
-      DiskIO.saveToDisk('models', state.models)
+      return new Promise(resolve => {
+        DiskIO.saveToDisk('models', state.models).then(() => resolve())
+      })
     }
   }
 }

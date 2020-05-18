@@ -1,6 +1,6 @@
 <template>
   <div ref="output" class="terminal">
-    <pre class="mono">{{ outputString }}</pre>
+    <pre class="mono">{{ firstLine }}{{ outputString }}</pre>
     <div class="terminal-end" />
   </div>
 </template>
@@ -23,6 +23,9 @@ export default {
     },
     endIndex() {
       return Math.min(this.startIndex + this.maxLines, this.output.length)
+    },
+    firstLine() {
+      return this.output.length > this.maxLines ? '(...)\n' : ''
     },
     outputString() {
       return this.output.slice(this.startIndex, this.endIndex).join('\n')

@@ -134,7 +134,7 @@ export default {
             : 1
           this.model.loss = loss
           this.model.acc = acc
-          this.$store.dispatch('models/saveModels')
+          await this.$store.dispatch('models/saveModels')
           await this.$store.dispatch('models/saveTfModel', {
             model: this.model,
             tfModel
