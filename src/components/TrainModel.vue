@@ -3,8 +3,8 @@
     <div class="train-model-content">
       <div class="train-model-title b">train model {{ model.name }}</div>
       <div class="msg">
-        Model will keep training indefinitely, saving after each epoch if the
-        loss decreased.
+        Model will keep training indefinitely, saving after every
+        {{ epochsPerIteration }} epochs if the loss decreased.
       </div>
       <div class="msg">
         Click quit to stop training.
@@ -32,7 +32,8 @@ export default {
   data() {
     return {
       output: [],
-      hasQuit: false
+      hasQuit: false,
+      epochsPerIteration: 4
     }
   },
   mounted() {
@@ -116,22 +117,36 @@ export default {
   },
   methods: {
     async trainEpochs(tfModel, trainData) {
-      this.output.push(
-        'Start training. Model is saved after each iteration if the loss decreased, press quit to end training.'
-      )
       let minLoss = this.model.loss || 1e6
       while (true) {
         if (this.hasQuit) break
-        const history = await trainingUtils.train(tfModel, trainData)
-        const loss = history.history.loss[0]
-        const acc = history.history.acc[0]
-        this.output.push(`loss: ${loss}, acc: ${acc}`)
+        this.output.push(
+          `Training epochs ${this.model.epochsTrained + 1}-${this.model
+            .epochsTrained + this.epochsPerIteration}...`
+        )
+        const history = await trainingUtils.train(
+          tfModel,
+          trainData,
+          this.epochsPerIteration,
+          {
+            onEpochEnd: (epoch, logs) => {
+              this.output.push(
+                `Epoch ${epoch + this.model.epochsTrained + 1}: loss: ${
+                  logs.loss
+                }, acc: ${logs.acc}.`
+              )
+            }
+          }
+        )
+        const lastEpoch = history.history.loss.length - 1
+        const loss = history.history.loss[lastEpoch]
+        const acc = history.history.acc[lastEpoch]
         if (loss < minLoss) {
           this.output.push(`loss decreased, saving...`)
           this.model.trained = true
           this.model.epochsTrained = this.model.epochsTrained
-            ? this.model.epochsTrained + 1
-            : 1
+            ? this.model.epochsTrained + this.epochsPerIteration
+            : this.epochsPerIteration
           this.model.loss = loss
           this.model.acc = acc
           await this.$store.dispatch('models/saveModels')

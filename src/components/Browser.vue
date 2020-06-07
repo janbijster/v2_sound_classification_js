@@ -55,7 +55,8 @@ export default {
       selectedLabel: null,
       nullLabelObject: {
         name: `unlabeled (${this.soundsByLabel(null).length})`,
-        value: null
+        value: null,
+        noDelete: true
       }
     }
   },

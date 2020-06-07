@@ -10,7 +10,11 @@
       @click="selectItem(item)"
     >
       {{ item[displayProperty] }}
-      <div class="item-delete" @click="deleteItem(item, $event)">
+      <div
+        v-if="!item.noDelete"
+        class="item-delete"
+        @click="deleteItem(item, $event)"
+      >
         <close :size="12" />
       </div>
     </div>

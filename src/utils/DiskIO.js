@@ -19,7 +19,6 @@ export default {
   saveToDisk(key, value) {
     return new Promise(resolve => {
       Vue.set(this.diskActivity, 0, `saving ${key}...`)
-      console.log(this.diskActivity)
       localforage.setItem(key, value).then(() => {
         Vue.set(this.diskActivity, 0, null)
         resolve()

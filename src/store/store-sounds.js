@@ -116,7 +116,9 @@ export default {
           sound.noSoundFile = true
           state.sounds.push(sound)
           // add label in case it doesn't exist
-          commit('addLabel', sound.label)
+          if (sound.label && sound.label != 'null') {
+            commit('addLabel', sound.label)
+          }
         }
       })
       DiskIO.saveToDisk('sounds', state.sounds)

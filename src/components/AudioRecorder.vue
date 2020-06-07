@@ -33,14 +33,10 @@
           <div class="btn" @click="saveAndQuit">save &amp; close</div>
         </div>
         <div v-if="!recording" class="audio-recorder-quit-btns">
-          <div
-            v-if="lastRecordingSound"
-            class="btn btn-sm"
-            @click="newRecording"
-          >
+          <div v-if="lastRecordingSound" class="btn" @click="newRecording">
             discard &amp; new
           </div>
-          <div v-if="lastRecordingSound" class="btn btn-sm" @click="quit">
+          <div v-if="lastRecordingSound" class="btn" @click="quit">
             discard &amp; close
           </div>
           <div v-else class="btn" @click="quit">quit</div>
@@ -164,10 +160,10 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .audio-recorder-content {
   position: absolute;
-  top: calc(50% - 100px);
+  top: calc(50% - 200px);
   left: calc(50% - 8rem);
   width: 16rem;
   height: 200px;
@@ -181,5 +177,9 @@ export default {
 .audio-recorder-rec-btns,
 .audio-recorder-new-btns {
   margin-bottom: 0.5rem;
+}
+.audio-recorder-content .btn {
+  width: 100%;
+  margin: 0.25rem;
 }
 </style>

@@ -55,7 +55,7 @@ export default {
 
     model.add(
       tf.layers.dense({
-        units: 16, // was: units: 64,
+        units: 64,
         kernelInitializer: 'glorotUniform',
         activation: 'relu'
       })
@@ -121,13 +121,15 @@ export default {
 
     return { trainX, trainY }
   },
-  train(model, { trainX, trainY }, callbacks = {}, epochs = 4, batchSize = 32) {
+  train(model, { trainX, trainY }, epochs = 1, callbacks = {}, batchSize = 32) {
     return model.fit(trainX, trainY, {
-      batchSize: batchSize,
+      batchSize,
       epochs,
       verbose: 1,
       shuffle: true,
-      callbacks
+      callbacks,
+      validationSplit: 0.1,
+      yieldEvery: 75
     })
   },
   predictSpectrogram(tfModel, spectrogram) {
