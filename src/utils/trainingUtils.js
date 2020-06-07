@@ -40,7 +40,7 @@ export default {
     model.add(
       tf.layers.conv2d({
         kernelSize: 3,
-        filters: 32, // was: filters: 64,
+        filters: 64,
         strides: 1,
         activation: 'relu',
         kernelInitializer: 'varianceScaling'
