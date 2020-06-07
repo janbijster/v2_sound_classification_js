@@ -121,7 +121,7 @@ export default {
 
     return { trainX, trainY }
   },
-  train(model, { trainX, trainY }, callbacks = {}, epochs = 1, batchSize = 32) {
+  train(model, { trainX, trainY }, callbacks = {}, epochs = 4, batchSize = 32) {
     return model.fit(trainX, trainY, {
       batchSize: batchSize,
       epochs,
