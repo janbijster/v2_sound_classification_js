@@ -44,8 +44,9 @@ export default {
           }
           return sound
         })
-        DiskIO.saveToDisk('labels', state.labels)
-        DiskIO.saveToDisk('sounds', state.sounds)
+        DiskIO.saveToDisk('labels', state.labels).then(() =>
+          DiskIO.saveToDisk('sounds', state.sounds)
+        )
       }
     },
     addSound(state, { name, type, label, file }) {
@@ -60,8 +61,9 @@ export default {
       }
       state.sounds.push(newSound)
       state.selectedSound = newSound
-      DiskIO.saveToDisk(`sound-file-${identifier}`, file)
-      DiskIO.saveToDisk('sounds', state.sounds)
+      DiskIO.saveToDisk(`sound-file-${identifier}`, file).then(() =>
+        DiskIO.saveToDisk('sounds', state.sounds)
+      )
     },
     deleteSound(state, sound) {
       if (window.confirm(`Delete this sound?`)) {
@@ -69,8 +71,9 @@ export default {
         state.sounds = state.sounds.filter(
           oldSound => oldSound.identifier != sound.identifier
         )
-        DiskIO.saveToDisk('sounds', state.sounds)
-        DiskIO.removeFromDisk(`sound-file-${sound.identifier}`)
+        DiskIO.saveToDisk('sounds', state.sounds).then(() =>
+          DiskIO.removeFromDisk(`sound-file-${sound.identifier}`)
+        )
       }
     },
     selectSound(state, sound) {

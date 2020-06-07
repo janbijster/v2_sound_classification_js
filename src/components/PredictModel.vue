@@ -66,25 +66,29 @@ export default {
         this.tfModel = tfModel
         this.output.push('Model ready.')
         this.modelReady = true
+        // get audio recorder if supported
+        audioUtils
+          .getRecorder()
+          .then(stream => {
+            this.recordingSupported = true
+            this.recorder = new AudioRecorder(stream)
+            this.output.push('Audio recorder ready.')
+            // when stream is stopped:
+            this.recorder.addEventListener(
+              'dataavailable',
+              this.processRecording
+            )
+          })
+          .catch(e => {
+            this.recordingSupported = false
+            this.output.push(
+              `Recording sound is not supported in this browser or permission denied. (Error: ${e.message})`
+            )
+          })
       })
       .catch(err => {
         this.output.push('Encountered an error, check the console.')
         console.log(err)
-      })
-    // get audio recorder if supported
-    audioUtils
-      .getRecorder()
-      .then(stream => {
-        this.recordingSupported = true
-        this.recorder = new AudioRecorder(stream)
-        // when stream is stopped:
-        this.recorder.addEventListener('dataavailable', this.processRecording)
-      })
-      .catch(e => {
-        this.recordingSupported = false
-        this.output.push(
-          `Recording sound is not supported in this browser or permission denied. (Error: ${e.message})`
-        )
       })
   },
   methods: {
