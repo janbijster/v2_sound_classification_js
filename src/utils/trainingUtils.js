@@ -132,6 +132,29 @@ export default {
       yieldEvery: 75
     })
   },
+  async evaluate(model, { trainX, trainY }, labels) {
+    const evalYTensor = model.predict(trainX)
+    const evalYArray = await evalYTensor.array()
+    const trainYArray = await trainY.array()
+    const confusionMatrix = labels.map(trueLabel => {
+      return labels.map(predictedLabel => ({
+        trueLabel,
+        predictedLabel,
+        count: 0
+      }))
+    })
+    for (let i = 0; i < evalYArray.length; i++) {
+      let predictedLabel = this.argMax(evalYArray[i])
+      let trueLabel = this.argMax(trainYArray[i])
+      confusionMatrix[trueLabel][predictedLabel].count += 1
+    }
+    return confusionMatrix
+  },
+  argMax(array) {
+    return array
+      .map((x, i) => [x, i])
+      .reduce((r, a) => (a[0] > r[0] ? a : r))[1]
+  },
   predictSpectrogram(tfModel, spectrogram) {
     const X = tf
       .tensor(spectrogram)

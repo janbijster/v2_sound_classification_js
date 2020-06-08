@@ -62,9 +62,9 @@ export default {
     return new Promise((resolve, reject) => {
       Vue.set(this.diskActivity, 0, `loading model file for ${model.name}...`)
       tf.loadLayersModel(`${this.storagePath()}model-file-${model.identifier}`)
-        .then(model => {
+        .then(tfModel => {
           Vue.set(this.diskActivity, 0, null)
-          resolve(model)
+          resolve(tfModel)
         })
         .catch(err => {
           Vue.set(this.diskActivity, 0, null)

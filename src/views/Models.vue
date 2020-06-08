@@ -33,7 +33,11 @@
                     ? 'Model created with labels'
                     : 'Select at least 2 labels'
                 "
-                :items="labelObjects"
+                :items="
+                  modelIsCreated
+                    ? labelsToObjects(selectedModel.labels)
+                    : labelObjects
+                "
                 :adjustable="!modelIsCreated"
                 :selected="selectedModel.labels"
                 class="select-labels"
@@ -77,6 +81,20 @@
                 <div
                   v-if="selectedModel.trained"
                   class="btn mar-bottom-sm"
+                  @click="showEvaluatePopup = true"
+                >
+                  evaluate
+                </div>
+                <evaluate-model
+                  v-if="
+                    showEvaluatePopup && selectedModel && selectedModel.trained
+                  "
+                  :model="selectedModel"
+                  @close="showEvaluatePopup = false"
+                />
+                <div
+                  v-if="selectedModel.trained"
+                  class="btn mar-bottom-sm"
                   @click="showPredictPopup = true"
                 >
                   predict
@@ -115,6 +133,7 @@ import VerticalSplit from '@/components/VerticalSplit'
 import ItemList from '@/components/ItemList'
 import SelectMultiple from '@/components/SelectMultiple'
 import TrainModel from '@/components/TrainModel'
+import EvaluateModel from '@/components/EvaluateModel'
 import PredictModel from '@/components/PredictModel'
 import trainingUtils from '@/utils/trainingUtils'
 import TopTabs from '@/components/TopTabs.vue'
@@ -128,6 +147,7 @@ export default {
     ItemList,
     SelectMultiple,
     TrainModel,
+    EvaluateModel,
     PredictModel,
     TopTabs
   },
@@ -135,6 +155,7 @@ export default {
     return {
       selectedLabels: [],
       showTrainPopup: false,
+      showEvaluatePopup: false,
       showPredictPopup: false
     }
   },

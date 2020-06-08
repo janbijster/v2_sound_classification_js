@@ -36,6 +36,17 @@ export default {
     }
   },
   actions: {
+    importModel({ state, dispatch }, { model, tfModel }) {
+      // save model
+      state.models.push(model)
+      DiskIO.saveToDisk('models', state.models).then(() => {
+        // save tfModel
+        dispatch('saveTfModel', { model, tfModel }).then(() => {
+          // save models to disk
+          DiskIO.saveToDisk('models', state.models)
+        })
+      })
+    },
     saveTfModel(_, { model, tfModel }) {
       return new Promise(resolve => {
         DiskIO.saveTfModel(model, tfModel).then(() => resolve())
