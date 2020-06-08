@@ -17,6 +17,16 @@
         <div v-else class="btn" @click="stopRecording">stop</div>
       </template>
       <div class="btn" @click="quit">quit</div>
+      <div class="msg">
+        <br />
+        Optional: type an url below and every prediction will be sent to it with
+        a post request.
+      </div>
+      <input
+        v-model="postRequestUrl"
+        class="predict-model-input"
+        placeholder="https://localhost"
+      />
     </div>
   </div>
 </template>
@@ -49,7 +59,8 @@ export default {
       tfModel: null,
       recordingSupported: false,
       recording: false,
-      recorder: null
+      recorder: null,
+      postRequestUrl: ''
     }
   },
   computed: {},
@@ -167,6 +178,29 @@ export default {
         this.model.labels
       )
       this.output.push(trainingUtils.formatLabelInfo(prediction))
+      if (this.postRequestUrl) {
+        this.sendPostRequest(prediction)
+      }
+    },
+    sendPostRequest(data) {
+      this.output.push('\nSending prediction data...')
+
+      const xhr = new XMLHttpRequest()
+      xhr.open('POST', this.postRequestUrl)
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          this.output.push(`Data sent. Response: ${xhr.responseText}\n`)
+        } else {
+          this.output.push(
+            `Status: ${xhr.status}, statusText: ${xhr.statusText}\n`
+          )
+        }
+      }
+      xhr.onerror = () => {
+        this.output.push('Request error.\n')
+      }
+      xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
+      xhr.send(JSON.stringify({ data }))
     },
     quit() {
       this.stopRecording()
