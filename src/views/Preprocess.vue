@@ -55,17 +55,15 @@ export default {
             `(${i}/${allSounds.length}) ${sound.name} - already processed, ${sound.spectrograms.length} spectrograms.`
           )
           // short pause to allow the DOM to update. Otherwise everything wil just freeze
-          await this.sleep(50)
+          await this.sleep(100)
         } else {
-          this.loadSound(sound).then(audioSource => {
-            this.preprocessSound(audioSource, sound).then(spectrograms => {
-              this.batchOutput.push(
-                `(${i}/${allSounds.length}) ${sound.name} - processed : got ${spectrograms.length} spectrograms.`
-              )
-            })
-          })
+          const audioSource = await this.loadSound(sound)
+          const spectrograms = await this.preprocessSound(audioSource, sound)
+          this.batchOutput.push(
+            `(${i}/${allSounds.length}) ${sound.name} - processed : got ${spectrograms.length} spectrograms.`
+          )
           // short pause to allow the DOM to update. Otherwise everything wil just freeze
-          await this.sleep(200)
+          await this.sleep(100)
         }
         if (this.preprocessAllStopped) {
           break
@@ -94,7 +92,9 @@ export default {
           audioUtils
             .dataURIToAudioBuffer(audioSource)
             .then(audioBuffer => {
-              const completeSpectrogram = audioUtils.analyzeMfcc(audioBuffer)
+              const completeSpectrogram = audioUtils.analyzeSpectrogram(
+                audioBuffer
+              )
               const spectrograms = imageUtils.padAndCut(completeSpectrogram)
               if (spectrograms.length == 0) {
                 console.log(completeSpectrogram)

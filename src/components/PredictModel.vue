@@ -151,9 +151,8 @@ export default {
           this.output.push('Creating spectrograms...')
           let completeSpectrogram, spectrograms
           try {
-            completeSpectrogram = audioUtils.analyzeMfcc(audioBuffer)
+            completeSpectrogram = audioUtils.analyzeSpectrogram(audioBuffer)
             spectrograms = imageUtils.padAndCut(completeSpectrogram)
-            console.log(spectrograms)
           } catch (e) {
             this.output.push(`Error ceating spectrograms: ${e.message}`)
           }

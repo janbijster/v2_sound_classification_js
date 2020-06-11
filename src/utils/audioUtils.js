@@ -25,11 +25,11 @@ export default {
       }
     })
   },
-  analyzeMfcc(
+  analyzeSpectrogram(
     buffer,
     hopSize = 512,
     numCoefficients = 40,
-    normalize = val => (val + 100) / 255
+    normalize = val => val / 10
   ) {
     Meyda.numberOfMFCCCoefficients = numCoefficients
     Meyda.bufferSize = hopSize

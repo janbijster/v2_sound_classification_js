@@ -113,7 +113,7 @@ export default {
             .then(audioBuffer => {
               let completeSpectrogram, spectrograms
               try {
-                completeSpectrogram = audioUtils.analyzeMfcc(audioBuffer)
+                completeSpectrogram = audioUtils.analyzeSpectrogram(audioBuffer)
                 spectrograms = imageUtils.padAndCut(completeSpectrogram)
               } catch (e) {
                 alert(e)

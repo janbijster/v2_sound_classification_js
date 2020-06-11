@@ -62,8 +62,12 @@
             <span class="sound-property-label"
               >{{ selectedSound.spectrograms.length }} spectrograms
             </span>
-            <div class="btn btn-sm" @click="$router.push(`/preprocess`)">
-              show
+            <div class="spectrograms-holder">
+              <img
+                v-for="(spectrogram, index) in selectedSound.spectrograms"
+                :key="index"
+                :src="spectrogramImage(spectrogram)"
+              />
             </div>
           </template>
           <template v-else>
@@ -80,6 +84,7 @@
 
 <script>
 import VueAudio from '@/components/VueAudio/VueAudio'
+import imageUtils from '@/utils/imageUtils'
 
 export default {
   components: {
@@ -121,6 +126,9 @@ export default {
   methods: {
     saveSounds() {
       this.$store.dispatch('sounds/saveSounds')
+    },
+    spectrogramImage(spectrogram) {
+      return imageUtils.createImageFromSpectrogram(spectrogram)
     }
   }
 }
