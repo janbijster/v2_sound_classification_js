@@ -19,7 +19,7 @@
             </th>
           </tr>
           <tr v-for="(row, rowIndex) in confusionMatrix" :key="rowIndex">
-            <td class="b">{{ row[0].trueLabel }}</td>
+            <td class="b">{{ usedLabelDisplay(row[0].trueLabel) }}</td>
             <td
               v-for="(col, colIndex) in row"
               :key="colIndex"
@@ -30,8 +30,24 @@
           </tr>
         </table>
       </div>
-
-      <terminal class="evaluate-model-output-holder" :output="output" />
+      <div v-if="started">
+        <terminal class="evaluate-model-output-holder" :output="output" />
+      </div>
+      <div v-else>
+        Select labels to use:
+        <div v-for="(label, index) in model.labels" :key="index" class="msg">
+          For label {{ label }} use
+          <select v-model="labelMappings[label]">
+            <option
+              v-for="(useLabel, useIndex) in allLabels"
+              :key="useIndex"
+              :value="useLabel"
+              >{{ useLabel }}</option
+            >
+          </select>
+        </div>
+        <div class="btn" @click="start">Start</div>
+      </div>
       <div class="btn" @click="quit">quit</div>
     </div>
   </div>
@@ -55,74 +71,95 @@ export default {
     return {
       output: [],
       hasQuit: false,
-      confusionMatrix: null
+      confusionMatrix: null,
+      started: false,
+      labelMappings: {}
     }
   },
   mounted() {
-    if (!this.model || !this.model.hasTfModel) {
-      this.output.push('No tensorflow model.')
-      return
+    this.labelMappings = this.model.labels.reduce((mappings, modelLabel) => {
+      mappings[modelLabel] =
+        this.allLabels.find(label => label == modelLabel) || this.allLabels[0]
+      return mappings
+    }, {})
+  },
+  computed: {
+    allLabels() {
+      return this.$store.getters['sounds/getLabels']
     }
-    // get data
-    this.output.push('Loading data...')
-    // get sounds organized by label
-    const modelSounds = this.model.labels.map(label => ({
-      label,
-      sounds: this.$store.getters['sounds/getSoundsByLabel'](label)
-    }))
-    // collect spectrograms and do checks
-    let numSpectrograms = 0
-    let spectrogramsByLabel = []
-    let emptyLabels = []
-    modelSounds.forEach(({ label, sounds }) => {
-      const labelSpectrograms = {
-        label,
-        spectrograms: []
-      }
-      sounds.forEach(sound => {
-        if (sound.spectrograms && sound.spectrograms.length > 0) {
-          numSpectrograms += sound.spectrograms.length
-          labelSpectrograms.spectrograms.push(...sound.spectrograms)
-        }
-      })
-      if (labelSpectrograms.spectrograms.length == 0) {
-        emptyLabels.push(label)
-      }
-      spectrogramsByLabel.push(labelSpectrograms)
-    })
-    // Warn on empty labels
-    if (emptyLabels.length > 0) {
-      const emptyLabelNames = emptyLabels.join(', ')
-      this.output.push(
-        `Warning: labels (${emptyLabelNames}) contain no preprocessed sounds.`
-      )
-    }
-    this.output.push(
-      `Got ${numSpectrograms} spectrograms in ${spectrogramsByLabel.length} labels:`
-    )
-    spectrogramsByLabel.forEach(({ label, spectrograms }) =>
-      this.output.push(`  ${label}: ${spectrograms.length}`)
-    )
-    const dataSet = trainingUtils.prepareData(spectrogramsByLabel)
-
-    // load tensorflow model
-    this.output.push('Loading tensorflow model...')
-    this.$store
-      .dispatch('models/loadTfModel', { model: this.model })
-      .then(tfModel => {
-        // compile
-        tfModel = trainingUtils.compile(tfModel)
-        this.output.push('Model ready:')
-        this.output.push(...trainingUtils.getModelSummary(tfModel))
-        // evaluate model
-        this.evaluate(tfModel, dataSet, this.model.labels)
-      })
-      .catch(err => {
-        this.output.push('Encountered an error, check the console.')
-        console.log(err)
-      })
   },
   methods: {
+    usedLabelDisplay(label) {
+      const usedLabel = this.labelMappings[label]
+      return label == usedLabel ? label : `${label} (${usedLabel})`
+    },
+    start() {
+      this.started = true
+      if (!this.model || !this.model.hasTfModel) {
+        this.output.push('No tensorflow model.')
+        return
+      }
+      // get data
+      this.output.push('Loading data...')
+      // get sounds organized by label
+      const modelSounds = this.model.labels.map(label => ({
+        label: this.usedLabelDisplay(label),
+        sounds: this.$store.getters['sounds/getSoundsByLabel'](
+          this.labelMappings[label]
+        )
+      }))
+      // collect spectrograms and do checks
+      let numSpectrograms = 0
+      let spectrogramsByLabel = []
+      let emptyLabels = []
+      modelSounds.forEach(({ label, sounds }) => {
+        const labelSpectrograms = {
+          label,
+          spectrograms: []
+        }
+        sounds.forEach(sound => {
+          if (sound.spectrograms && sound.spectrograms.length > 0) {
+            numSpectrograms += sound.spectrograms.length
+            labelSpectrograms.spectrograms.push(...sound.spectrograms)
+          }
+        })
+        if (labelSpectrograms.spectrograms.length == 0) {
+          emptyLabels.push(label)
+        }
+        spectrogramsByLabel.push(labelSpectrograms)
+      })
+      // Warn on empty labels
+      if (emptyLabels.length > 0) {
+        const emptyLabelNames = emptyLabels.join(', ')
+        this.output.push(
+          `Warning: labels (${emptyLabelNames}) contain no preprocessed sounds.`
+        )
+      }
+      this.output.push(
+        `Got ${numSpectrograms} spectrograms in ${spectrogramsByLabel.length} labels:`
+      )
+      spectrogramsByLabel.forEach(({ label, spectrograms }) =>
+        this.output.push(`  ${label}: ${spectrograms.length}`)
+      )
+      const dataSet = trainingUtils.prepareData(spectrogramsByLabel)
+
+      // load tensorflow model
+      this.output.push('Loading tensorflow model...')
+      this.$store
+        .dispatch('models/loadTfModel', { model: this.model })
+        .then(tfModel => {
+          // compile
+          tfModel = trainingUtils.compile(tfModel)
+          this.output.push('Model ready:')
+          this.output.push(...trainingUtils.getModelSummary(tfModel))
+          // evaluate model
+          this.evaluate(tfModel, dataSet, this.model.labels)
+        })
+        .catch(err => {
+          this.output.push('Encountered an error, check the console.')
+          console.log(err)
+        })
+    },
     async evaluate(tfModel, dataSet, labels) {
       this.confusionMatrix = await trainingUtils.evaluate(
         tfModel,
@@ -152,7 +189,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import '@/assets/style/variables.scss';
 
 .evaluate-model-content {
@@ -177,5 +214,8 @@ table.confusion-matrix {
   font-size: 0.75rem;
   display: inline-block;
   margin: 1rem;
+}
+.btn {
+  margin-top: 0.5rem;
 }
 </style>

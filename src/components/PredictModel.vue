@@ -138,8 +138,6 @@ export default {
       if (this.recorder.state == 'recording') {
         this.recorder.stop()
       }
-      // Remove “recording” icon from browser tab
-      this.recorder.stream.getTracks().forEach(i => i.stop())
       this.recording = false
     },
     preprocessFile(file, oneSpectrogram = false) {
@@ -206,6 +204,8 @@ export default {
     quit() {
       this.stopRecording()
       this.hasQuit = true
+      // Remove “recording” icon from browser tab
+      this.recorder.stream.getTracks().forEach(i => i.stop())
       this.$emit('close')
     }
   }

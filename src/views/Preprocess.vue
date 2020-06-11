@@ -3,6 +3,8 @@
     <top-tabs />
     <div class="box text-center">
       <div class="btn" @click="preprocessAll">preprocess all</div>
+      <input id="overwrite_check" v-model="overwrite" type="checkbox" />
+      <label for="overwrite_check">Overwrite existing</label>
     </div>
     <template v-if="batchOutput && batchOutput.length > 0">
       <div class="preprocess-output-holder box">
@@ -32,7 +34,8 @@ export default {
   data() {
     return {
       batchOutput: [],
-      preprocessAllStopped: false
+      preprocessAllStopped: false,
+      overwrite: false
     }
   },
   computed: {
@@ -50,9 +53,15 @@ export default {
       const allSounds = this.$store.getters['sounds/getAllSounds']
       for (let i = 0; i < allSounds.length; i++) {
         let sound = allSounds[i]
-        if (sound.spectrograms && sound.spectrograms.length > 0) {
+        if (
+          sound.spectrograms &&
+          sound.spectrograms.length > 0 &&
+          !this.overwrite
+        ) {
           this.batchOutput.push(
-            `(${i}/${allSounds.length}) ${sound.name} - already processed, ${sound.spectrograms.length} spectrograms.`
+            `(${i + 1}/${allSounds.length}) ${
+              sound.name
+            } - already processed, ${sound.spectrograms.length} spectrograms.`
           )
           // short pause to allow the DOM to update. Otherwise everything wil just freeze
           await this.sleep(100)
@@ -60,7 +69,9 @@ export default {
           const audioSource = await this.loadSound(sound)
           const spectrograms = await this.preprocessSound(audioSource, sound)
           this.batchOutput.push(
-            `(${i}/${allSounds.length}) ${sound.name} - processed : got ${spectrograms.length} spectrograms.`
+            `(${i + 1}/${allSounds.length}) ${sound.name} - processed : got ${
+              spectrograms.length
+            } spectrograms.`
           )
           // short pause to allow the DOM to update. Otherwise everything wil just freeze
           await this.sleep(100)
@@ -69,7 +80,6 @@ export default {
           break
         }
       }
-      allSounds.forEach((sound, i) => {})
     },
     loadSound(sound) {
       return new Promise((resolve, reject) => {
@@ -96,9 +106,6 @@ export default {
                 audioBuffer
               )
               const spectrograms = imageUtils.padAndCut(completeSpectrogram)
-              if (spectrograms.length == 0) {
-                console.log(completeSpectrogram)
-              }
               // save spectrograms on sound
               this.$set(sound, 'spectrograms', spectrograms)
               this.$store.dispatch('sounds/saveSounds')
