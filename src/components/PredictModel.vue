@@ -154,14 +154,16 @@ export default {
             completeSpectrogram = audioUtils.analyzeMfcc(audioBuffer)
             spectrograms = imageUtils.padAndCut(completeSpectrogram)
             console.log(spectrograms)
-            this.output.push(`Got ${spectrograms.length} spectrograms`)
           } catch (e) {
             this.output.push(`Error ceating spectrograms: ${e.message}`)
           }
           if (oneSpectrogram) {
+            this.output.push(spectrograms[0])
             this.predict(spectrograms[0])
           } else {
+            this.output.push(`Got ${spectrograms.length} spectrograms:`)
             spectrograms.forEach(spectrogram => {
+              this.output.push(spectrogram)
               this.predict(spectrogram)
             })
           }

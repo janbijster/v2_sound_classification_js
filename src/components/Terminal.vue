@@ -1,11 +1,13 @@
 <template>
   <div ref="output" class="terminal">
-    <pre class="mono">{{ firstLine }}{{ outputString }}</pre>
+    <div class="mono" v-html="outputString"></div>
     <div class="terminal-end" />
   </div>
 </template>
 
 <script>
+import imageUtils from '@/utils/imageUtils'
+
 export default {
   props: {
     output: {
@@ -28,7 +30,13 @@ export default {
       return this.output.length > this.maxLines ? '(...)\n' : ''
     },
     outputString() {
-      return this.output.slice(this.startIndex, this.endIndex).join('\n')
+      return (
+        this.firstLine +
+        this.output
+          .slice(this.startIndex, this.endIndex)
+          .map(this.formatOutputItem)
+          .join('')
+      )
     }
   },
   watch: {
@@ -36,11 +44,25 @@ export default {
       const outputHolderEl = this.$refs['output']
       outputHolderEl.scrollTop = outputHolderEl.scrollHeight
     }
+  },
+  methods: {
+    formatOutputItem(item) {
+      if (typeof item == 'string') {
+        return `<pre>${item}</pre>`
+      } else {
+        try {
+          const dataUrl = imageUtils.createImageFromSpectrogram(item)
+          return `<img src="${dataUrl}" />`
+        } catch {
+          return ''
+        }
+      }
+    }
   }
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 @import '@/assets/style/variables.scss';
 
 .terminal {
@@ -52,5 +74,9 @@ export default {
 }
 .terminal-end {
   height: 2rem;
+}
+
+.terminal pre {
+  margin: 0;
 }
 </style>
